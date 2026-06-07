@@ -82,9 +82,9 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
       // The Postgres rules or upsert requires resolution=merge-duplicates.
       // Let's execute API requests for each draft price entry.
       const savePromises = entries.map(([source, price]) => {
-        return sbFetch('prices', {
+        return sbFetch('prices?on_conflict=client_id,source', {
           method: 'POST',
-          headers: { Prefer: 'return=representation,resolution=merge-duplicates' },
+          headers: { Prefer: 'resolution=merge-duplicates' },
           body: JSON.stringify({
             client_id: clientId,
             source: source,
@@ -152,8 +152,8 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(draftPrices).map(([source, price], idx) => (
-                  <div 
-                    key={idx} 
+                  <div
+                    key={idx}
                     className="flex items-center justify-between p-3.5 bg-slate-950/50 rounded-xl border border-slate-800/60"
                   >
                     <span className="text-xs font-semibold text-slate-300 font-sans pr-2" title={source}>
@@ -176,8 +176,8 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
           </div>
 
           {/* Form to manual add new source */}
-          <form 
-            onSubmit={handleAddNewSource} 
+          <form
+            onSubmit={handleAddNewSource}
             className="p-4 bg-slate-950/40 rounded-xl border border-slate-800/60 space-y-3"
             id="add-custom-source-form"
           >
