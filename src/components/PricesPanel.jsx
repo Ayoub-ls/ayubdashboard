@@ -84,7 +84,7 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
       const savePromises = entries.map(([source, price]) => {
         return sbFetch('prices', {
           method: 'POST',
-          headers: { Prefer: 'resolution=merge-duplicates' },
+          headers: { Prefer: 'return=representation,resolution=merge-duplicates' },
           body: JSON.stringify({
             client_id: clientId,
             source: source,
@@ -113,15 +113,15 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl mb-6 shadow-sm overflow-hidden" id="prices-panel-widget" dir="rtl">
+    <div className="bg-slate-900 border border-slate-800/60 rounded-2xl mb-6 overflow-hidden" id="prices-panel-widget" dir="rtl">
       {/* Header Button to Toggle Collapse */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 bg-slate-900/40 hover:bg-slate-900/80 transition-all focus:outline-none"
+        className="w-full flex items-center justify-between p-5 hover:bg-slate-800/30 transition-all focus:outline-none"
         id="toggle-prices-btn"
       >
         <div className="flex items-center gap-3">
-          <div className="text-indigo-400 bg-indigo-500/10 p-2 rounded-xl">
+          <div className="text-emerald-400 bg-emerald-500/10 p-2 rounded-xl">
             <Settings2 className="w-4 h-4" />
           </div>
           <div className="text-right">
@@ -132,7 +132,7 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
 
         <div className="flex items-center gap-2">
           {Object.keys(draftPrices).length > 0 && (
-            <span className="text-[10px] text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full font-bold">
+            <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full font-bold">
               {Object.keys(draftPrices).length} منصات
             </span>
           )}
@@ -142,7 +142,7 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
 
       {/* Collapsible Content */}
       {isOpen && (
-        <div className="p-5 border-t border-slate-800/60 bg-slate-900/60 space-y-6" id="prices-panel-content">
+        <div className="p-6 border-t border-slate-800/60 space-y-6" id="prices-panel-content">
           {/* List of Prices */}
           <div className="space-y-3.5">
             {Object.keys(draftPrices).length === 0 ? (
@@ -154,9 +154,9 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
                 {Object.entries(draftPrices).map(([source, price], idx) => (
                   <div 
                     key={idx} 
-                    className="flex items-center justify-between p-3 bg-slate-950/50 rounded-xl border border-slate-850"
+                    className="flex items-center justify-between p-3.5 bg-slate-950/50 rounded-xl border border-slate-800/60"
                   >
-                    <span className="text-xs font-semibold text-slate-300 font-sans truncate pr-2 max-w-[140px]" title={source}>
+                    <span className="text-xs font-semibold text-slate-300 font-sans pr-2" title={source}>
                       {source}
                     </span>
                     <div className="flex items-center gap-2">
@@ -165,9 +165,9 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
                         min="0"
                         value={price}
                         onChange={(e) => handlePriceChange(source, e.target.value)}
-                        className="w-24 bg-slate-900 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg text-left font-mono font-medium text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                        className="w-24 bg-slate-900 border border-slate-800 text-xs px-2.5 py-2 rounded-xl text-left font-mono font-medium text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                       />
-                      <span className="text-[10px] text-slate-400 font-medium">DA</span>
+                      <span className="text-[10px] text-slate-500 font-medium">DA</span>
                     </div>
                   </div>
                 ))}
@@ -178,7 +178,7 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
           {/* Form to manual add new source */}
           <form 
             onSubmit={handleAddNewSource} 
-            className="p-4 bg-slate-950/40 rounded-xl border border-slate-850/80 space-y-3"
+            className="p-4 bg-slate-950/40 rounded-xl border border-slate-800/60 space-y-3"
             id="add-custom-source-form"
           >
             <div className="text-[11px] font-bold text-slate-400 mb-1">إضافة منصة أو مصدر إعلاني جديد يدوياً:</div>
@@ -188,7 +188,7 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
                 placeholder="اسم المنصة (مثال: TikTok)"
                 value={newSourceName}
                 onChange={(e) => setNewSourceName(e.target.value)}
-                className="bg-slate-900 border border-slate-800 text-xs px-3 py-2 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+                className="bg-slate-900 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500"
               />
               <input
                 type="number"
@@ -196,11 +196,11 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
                 placeholder="السعر بالدينار (DA)"
                 value={newSourcePrice}
                 onChange={(e) => setNewSourcePrice(e.target.value)}
-                className="bg-slate-900 border border-slate-800 text-xs px-3 py-2 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono"
+                className="bg-slate-900 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-mono"
               />
               <button
                 type="submit"
-                className="bg-slate-800 hover:bg-slate-750 text-slate-200 font-semibold text-xs py-2 px-3 rounded-xl border border-slate-705 transition-colors flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs py-2.5 px-3 rounded-xl border border-slate-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>أضف للقائمة</span>
@@ -209,15 +209,15 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
           </form>
 
           {/* Messages & Actions bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-800/40">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-slate-800/40">
             <div>
               {successMessage && (
-                <div className="text-emerald-400 text-xs font-semibold animate-pulse" id="prices-success-msg">
+                <div className="text-emerald-400 text-xs font-semibold" id="prices-success-msg">
                   {successMessage}
                 </div>
               )}
               {errorMessage && (
-                <div className="text-red-400 text-xs font-semibold">
+                <div className="text-red-400 text-[11px] font-medium">
                   {errorMessage}
                 </div>
               )}
@@ -226,7 +226,7 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
             <button
               onClick={handleSavePrices}
               disabled={loading || Object.keys(draftPrices).length === 0}
-              className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800/50 disabled:text-indigo-300 text-white text-xs font-bold py-2.5 px-5 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 shadow-md shadow-indigo-950/30"
+              className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white text-xs font-bold py-2.5 px-5 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
               id="save-prices-btn"
             >
               {loading ? (

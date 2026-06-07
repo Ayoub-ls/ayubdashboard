@@ -35,102 +35,72 @@ export default function KPICards({ orders = [], prices = [] }) {
   // Wait, let's look at the instruction: deliveryRate = delivered / total * 100
   // Let's use the literal mathematical calculation: (delivered / total) * 100, capped at 100.
   const literalDeliveryRate = totalOrders > 0 
-    ? Math.round((deliveredOrders / totalOrders) * 100) 
+    ? Math.min(Math.round((deliveredOrders / totalOrders) * 100), 100) 
     : 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="kpi-cards-grid" dir="rtl">
-      {/* 1. إجمالي المبيعات (Revenue) - Emerald */}
-      <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/30 transition-all shadow-md">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-slate-400 text-xs font-semibold">إجمالي المبيعات</p>
-          <div className="text-emerald-500 bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="kpi-cards-grid" dir="rtl">
+      {/* 1. إجمالي المبيعات (Revenue) */}
+      <div className="bg-slate-900 border border-slate-800/60 p-5 rounded-2xl relative overflow-hidden hover:border-emerald-500/30 transition-all">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">إجمالي المبيعات</p>
+          <div className="text-emerald-500 bg-emerald-500/10 p-2 rounded-xl">
             <DollarSign className="w-4 h-4" />
           </div>
         </div>
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-emerald-400 font-sans tracking-tight">
-              {totalRevenue.toLocaleString()} <span className="text-xs font-normal opacity-70 mr-1 text-slate-400">DA</span>
-            </h2>
-            <p className="text-[10px] text-slate-500 mt-1">المبيعات غير الملغاة</p>
-          </div>
-          <div className="text-emerald-500 text-xs font-mono font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">
-            +100%
-          </div>
-        </div>
+        <h2 className="text-2xl font-black text-white tracking-tight">
+          {totalRevenue.toLocaleString()} <span className="text-xs font-normal text-slate-500 mr-1">DA</span>
+        </h2>
       </div>
 
-      {/* 2. إجمالي الطلبات (Total Orders) - Blue */}
-      <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden group hover:border-indigo-500/30 transition-all shadow-md">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-slate-400 text-xs font-semibold">إجمالي الطلبات</p>
-          <div className="text-indigo-400 bg-indigo-500/10 p-2 rounded-xl border border-indigo-500/20">
+      {/* 2. إجمالي الطلبات (Total Orders) */}
+      <div className="bg-slate-900 border border-slate-800/60 p-5 rounded-2xl relative overflow-hidden hover:border-emerald-500/30 transition-all">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">إجمالي الطلبات</p>
+          <div className="text-sky-400 bg-sky-500/10 p-2 rounded-xl">
             <ShoppingBag className="w-4 h-4" />
           </div>
         </div>
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-indigo-400 font-sans tracking-tight">
-              {totalOrders.toLocaleString()}
-            </h2>
-            <p className="text-[10px] text-slate-500 mt-1">كل الحالات الواردة</p>
-          </div>
-          <div className="text-indigo-400 text-xs font-mono bg-indigo-500/10 px-2 py-0.5 rounded-full">
-            مستمر
-          </div>
-        </div>
+        <h2 className="text-2xl font-black text-white tracking-tight">
+          {totalOrders.toLocaleString()}
+        </h2>
       </div>
 
-      {/* 3. القطع المباعة (Total Items Sold) - Amber */}
-      <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all shadow-md">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-slate-400 text-xs font-semibold">القطع المباعة</p>
-          <div className="text-amber-500 bg-amber-500/10 p-2 rounded-xl border border-amber-500/20">
+      {/* 3. القطع المباعة (Total Items Sold) */}
+      <div className="bg-slate-900 border border-slate-800/60 p-5 rounded-2xl relative overflow-hidden hover:border-emerald-500/30 transition-all">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">القطع المباعة</p>
+          <div className="text-amber-400 bg-amber-500/10 p-2 rounded-xl">
             <ShoppingBasket className="w-4 h-4" />
           </div>
         </div>
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-amber-400 font-sans tracking-tight">
-              {totalItems.toLocaleString()}
-            </h2>
-            <p className="text-[10px] text-slate-500 mt-1">مجموع كميات الطلبيات</p>
-          </div>
-          <div className="text-amber-500 text-xs font-mono bg-amber-500/10 px-2 py-0.5 rounded-full">
-            نشط
-          </div>
-        </div>
+        <h2 className="text-2xl font-black text-white tracking-tight">
+          {totalItems.toLocaleString()}
+        </h2>
       </div>
 
-      {/* 4. معدل التسليم (Delivery Rate) - Indigo/Sky */}
-      <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden group hover:border-sky-500/30 transition-all shadow-md">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full blur-2xl pointer-events-none" />
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-slate-400 text-xs font-semibold">معدل التسليم</p>
-          <div className="text-sky-400 bg-sky-500/10 p-2 rounded-xl border border-sky-500/20">
+      {/* 4. معدل التسليم (Delivery Rate) */}
+      <div className="bg-slate-900 border border-slate-800/60 p-5 rounded-2xl relative overflow-hidden hover:border-emerald-500/30 transition-all">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">معدل التسليم</p>
+          <div className="text-emerald-400 bg-emerald-500/10 p-2 rounded-xl">
             <Truck className="w-4 h-4" />
           </div>
         </div>
-        <div className="flex items-end justify-between">
-          <div className="w-full">
-            <div className="flex items-baseline gap-1">
-              <h2 className="text-2xl font-bold text-sky-400 font-sans tracking-tight">
-                {literalDeliveryRate}
-              </h2>
-              <span className="text-sm opacity-70 text-slate-400">%</span>
-            </div>
-            
-            {/* Delivery Rate progress bar */}
-            <div className="w-full mt-3 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-              <div 
-                className="bg-sky-500 h-full transition-all duration-500 rounded-full" 
-                style={{ width: `${Math.min(literalDeliveryRate, 100)}%` }} 
-              />
-            </div>
+        <div>
+          <div className="flex items-baseline gap-0.5">
+            <h2 className="text-2xl font-black text-white tracking-tight">
+              {literalDeliveryRate}
+            </h2>
+            <span className="text-sm text-slate-500">%</span>
+          </div>
+          
+          {/* Delivery Rate progress bar */}
+          <div className="w-full mt-3 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div 
+              className="bg-emerald-500 h-full transition-all duration-500 rounded-full" 
+              style={{ width: `${Math.min(literalDeliveryRate, 100)}%` }} 
+            />
           </div>
         </div>
       </div>
