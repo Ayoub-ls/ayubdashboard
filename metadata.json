@@ -1,0 +1,6 @@
+{
+  "name": "Multi-Dashboard",
+  "description": "A multi-client admin dashboard with protected routes, analytics, real-time KPI cards, and custom pixel-firing events.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
