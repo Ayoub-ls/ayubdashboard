@@ -162,7 +162,7 @@ export default function ClientDashboard() {
   const navigate = useNavigate();
   const clientId = sessionStorage.getItem("client_id") || "";
   const clientName = sessionStorage.getItem("client_name") || "العميل";
-  
+
   // Custom Lang: 'ar' | 'en' | 'fr'
   const [lang, setLang] = useState(() => {
     return localStorage.getItem("dashboard_lang") || "ar";
@@ -175,17 +175,17 @@ export default function ClientDashboard() {
   const [orders, setOrders] = useState([]);
   const [prices, setPrices] = useState([]);
   const [gtmEnabled, setGtmEnabled] = useState(true);
-  
+
   // UI States
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  
+
   // Modals
   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  
+
   // Toasts
   const [toast, setToast] = useState(null);
 
@@ -262,7 +262,7 @@ export default function ClientDashboard() {
         setGtmEnabled(!gtmEnabled);
         sessionStorage.setItem('gtm_enabled', (!gtmEnabled).toString());
         showNotification(
-          !gtmEnabled ? "✅ تم تفعيل بكسلات الـ GTM بنجاح" : "⚠️ تم تعطيل بكسلات الـ GTM", 
+          !gtmEnabled ? "✅ تم تفعيل بكسلات الـ GTM بنجاح" : "⚠️ تم تعطيل بكسلات الـ GTM",
           "grey"
         );
       }
@@ -360,12 +360,12 @@ export default function ClientDashboard() {
         if (newStatus === 'delivered' && gtmEnabled) {
           const price = getSourcePrice(orderItem.source);
           const totalValue = price * (orderItem.quantity || 1);
-          
+
           // Formulate custom nice toast for pixel fire
           setTimeout(() => {
             const pixelMsg = t.pixelFired;
             const detailMsg = t.pixelValue.replace("{value}", totalValue.toLocaleString()).replace("{customer}", orderItem.name);
-            
+
             // Show double toast or specific styling
             showNotification(`${pixelMsg} \n ${detailMsg}`, "success");
           }, 800);
@@ -439,9 +439,9 @@ export default function ClientDashboard() {
   // Filters logic
   const filteredOrders = orders.filter((order) => {
     const text = searchQuery.toLowerCase();
-    const matchesSearch = 
-      order.name?.toLowerCase().includes(text) || 
-      order.phone?.toLowerCase().includes(text) || 
+    const matchesSearch =
+      order.name?.toLowerCase().includes(text) ||
+      order.phone?.toLowerCase().includes(text) ||
       order.product_name?.toLowerCase().includes(text);
 
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
@@ -456,7 +456,7 @@ export default function ClientDashboard() {
   );
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-slate-950 text-slate-100 flex flex-col p-5 sm:p-8 selection:bg-emerald-500/30 selection:text-emerald-200"
       dir={isRtl ? "rtl" : "ltr"}
       id="client-dashboard-layout"
@@ -482,11 +482,10 @@ export default function ClientDashboard() {
         {/* Action Controls & Language Selector */}
         <div className="flex flex-wrap items-center gap-2.5" id="navbar-actions">
           {/* GTM Badge */}
-          <span className={`flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full border font-bold transition-colors ${
-            gtmEnabled 
-              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
-              : "bg-slate-800 text-slate-500 border-slate-700"
-          }`} id="gtm-indicator-badge">
+          <span className={`flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full border font-bold transition-colors ${gtmEnabled
+            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+            : "bg-slate-800 text-slate-500 border-slate-700"
+            }`} id="gtm-indicator-badge">
             <span className={`w-1.5 h-1.5 rounded-full ${gtmEnabled ? "bg-emerald-500 animate-pulse" : "bg-slate-500"}`} />
             {gtmEnabled ? t.gtmEnabled : t.gtmDisabled}
           </span>
@@ -495,7 +494,7 @@ export default function ClientDashboard() {
           <div className="w-px h-6 bg-slate-800 mx-1 hidden sm:block" />
 
           {/* GTM Toggle Switch Tool */}
-          <button 
+          <button
             onClick={toggleGTM}
             title="تبديل تفعيل أو تعطيل بكسل جوجل"
             className="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1.5 transition-all active:scale-95"
@@ -506,19 +505,19 @@ export default function ClientDashboard() {
 
           {/* Languages Dropdown/Toggle Group */}
           <div className="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-0.5" id="lang-switch-group">
-            <button 
+            <button
               onClick={() => handleLanguageChange('ar')}
               className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all ${lang === 'ar' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
             >
               عربي
             </button>
-            <button 
+            <button
               onClick={() => handleLanguageChange('fr')}
               className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all ${lang === 'fr' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
             >
               Fr
             </button>
-            <button 
+            <button
               onClick={() => handleLanguageChange('en')}
               className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all ${lang === 'en' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
             >
@@ -529,7 +528,7 @@ export default function ClientDashboard() {
           {/* Separator */}
           <div className="w-px h-6 bg-slate-800 mx-1 hidden sm:block" />
 
-          <button 
+          <button
             onClick={() => setIsPasswordModalOpen(true)}
             className="px-3 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl transition-all flex items-center gap-1.5 active:scale-95"
             id="change-pwd-btn"
@@ -537,8 +536,8 @@ export default function ClientDashboard() {
             <KeyRound className="w-3.5 h-3.5" />
             <span>{t.changePassword}</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={handleLogout}
             className="px-3 py-2 text-xs bg-slate-800 hover:bg-red-900/30 hover:text-red-400 text-slate-300 rounded-xl transition-all font-semibold flex items-center gap-1.5 active:scale-95 border border-slate-700 hover:border-red-900/30"
             id="logout-btn"
@@ -556,11 +555,11 @@ export default function ClientDashboard() {
       <StatsCharts orders={orders} prices={prices} />
 
       {/* CONFIG PANEL: SOURCE PRICING WIDGET */}
-      <PricesPanel 
-        clientId={clientId} 
-        orders={orders} 
-        prices={prices} 
-        onPricesSaved={fetchData} 
+      <PricesPanel
+        clientId={clientId}
+        orders={orders}
+        prices={prices}
+        onPricesSaved={fetchData}
       />
 
       {/* TABLE FILTERS & DATA GRID CONTROLS */}
@@ -571,8 +570,8 @@ export default function ClientDashboard() {
             {/* Search input field */}
             <div className="relative w-full sm:w-64">
               <Search className="absolute right-3 top-2.5 h-4 w-4 text-slate-500" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -632,97 +631,96 @@ export default function ClientDashboard() {
           ) : (
             <table className="w-full text-right" id="orders-main-table">
               <thead>
-                <tr className="sticky top-0 bg-slate-900 text-[11px] text-slate-400 uppercase tracking-wider border-b border-slate-800">
-                  <th className="py-4 px-5 font-bold text-right">{t.customer}</th>
-                  <th className="py-4 px-5 font-bold text-right">{t.wilaya}</th>
-                  <th className="py-4 px-5 font-bold text-right">{t.productSize}</th>
-                  <th className="py-4 px-5 font-bold text-center">{t.qty}</th>
-                  <th className="py-4 px-5 font-bold text-right">{t.priceAmount}</th>
-                  <th className="py-4 px-5 font-bold text-right">رأس المال / المصدر</th>
-                  <th className="py-4 px-5 font-bold text-center">{t.status}</th>
-                  <th className="py-4 px-5 font-bold text-center">{t.actions}</th>
+                <tr className="sticky top-0 bg-slate-900 text-[10px] md:text-xs text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">{t.customer}</th>
+                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">{t.wilaya}</th>
+                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">{t.productSize}</th>
+                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-center">{t.qty}</th>
+                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">{t.priceAmount}</th>
+                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">رأس المال / المصدر</th>
+                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-center">{t.status}</th>
+                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-center">{t.actions}</th>
                 </tr>
               </thead>
-              <tbody className="text-xs">
+              <tbody className="text-xs md:text-sm">
                 {filteredOrders.map((order, idx) => {
                   const singlePrice = getSourcePrice(order.source);
                   const totalOrderPrice = singlePrice * (order.quantity || 1);
                   return (
-                    <tr 
-                      key={order.id || idx} 
+                    <tr
+                      key={order.id || idx}
                       className={`hover:bg-slate-800/50 transition-colors border-b border-slate-800/30 ${idx % 2 === 0 ? 'bg-slate-900' : 'bg-slate-950'}`}
                       id={`order-row-${order.id}`}
                     >
                       {/* Customer Details */}
-                      <td className="py-4 px-5">
-                        <div className="font-bold text-slate-100 whitespace-nowrap">{order.name}</div>
-                        <div className="text-[10px] text-slate-500 font-mono mt-0.5 whitespace-nowrap">{order.phone}</div>
+                      <td className="py-3 px-3 md:py-5 md:px-6">
+                        <div className="font-bold text-slate-100 text-xs md:text-sm whitespace-nowrap">{order.name}</div>
+                        <div className="text-[10px] md:text-xs text-slate-500 font-mono mt-0.5 md:mt-1 whitespace-nowrap">{order.phone}</div>
                       </td>
 
                       {/* City/Wilaya */}
-                      <td className="py-4 px-5 text-slate-300 font-medium">
+                      <td className="py-3 px-3 md:py-5 md:px-6 text-slate-300 font-medium text-xs md:text-sm">
                         {order.city || "غير محدد"}
                       </td>
 
                       {/* Product & Size */}
-                      <td className="py-4 px-5">
-                        <span className="text-[11px] text-slate-200">{order.product_name || "منتج عام"}</span>
+                      <td className="py-3 px-3 md:py-5 md:px-6">
+                        <span className="text-xs md:text-sm text-slate-200">{order.product_name || "منتج عام"}</span>
                         {order.size && (
-                          <span className="text-[9px] bg-slate-800 text-slate-400 border border-slate-700 rounded-md px-1.5 py-0.5 mr-2 font-mono">
+                          <span className="text-[10px] md:text-sm bg-slate-800 text-white border border-fuchsia-700 rounded-md px-1.5 md:px-2 py-0.5 mr-1.5 md:mr-2 font-mono">
                             {order.size}
                           </span>
                         )}
                       </td>
 
                       {/* Quantity */}
-                      <td className="py-4 px-5 text-center font-mono font-bold text-slate-200">
+                      <td className="py-3 px-3 md:py-5 md:px-6 text-center font-mono font-bold text-orange-400 text-xs md:text-sm">
                         {order.quantity || 1}
                       </td>
 
                       {/* Cash value */}
-                      <td className="py-4 px-5 font-mono font-bold">
+                      <td className="py-3 px-3 md:py-5 md:px-6 font-mono font-bold text-xs md:text-sm">
                         {totalOrderPrice > 0 ? (
                           <span className="text-emerald-400 whitespace-nowrap">
-                            {totalOrderPrice.toLocaleString()} <span className="text-[9px] font-normal text-slate-500">DA</span>
+                            {totalOrderPrice.toLocaleString()} <span className="text-[9px] md:text-xs font-normal text-slate-500">DA</span>
                           </span>
                         ) : (
-                          <span className="text-slate-500 text-[10px]">0 DA</span>
+                          <span className="text-slate-500 text-[10px] md:text-xs">0 DA</span>
                         )}
                       </td>
 
                       {/* Source badge marker */}
-                      <td className="py-4 px-5">
-                        <span className="text-[10px] font-medium bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-full text-slate-300">
+                      <td className="py-3 px-3 md:py-5 md:px-6">
+                        <span className="text-[10px] md:text-xs font-medium bg-slate-800 border border-fuchsia-700 px-2 md:px-3 py-1 md:py-1.5 rounded-full text-white">
                           {order.source || "غير معروف"}
                         </span>
                       </td>
 
                       {/* Live status management status buttons / select dropdown */}
-                      <td className="py-4 px-5 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
+                      <td className="py-3 px-3 md:py-5 md:px-6 text-center">
+                        <div className="flex items-center justify-center gap-1.5 md:gap-2">
                           <select
                             value={order.status || 'pending'}
                             onChange={(e) => handleUpdateStatus(order.id, e.target.value, order)}
-                            className={`text-[10px] font-bold px-2.5 py-1.5 rounded-full border focus:outline-none cursor-pointer min-w-[90px] ${
-                              order.status === 'delivered' 
-                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-                                : order.status === 'shipped'
+                            className={`text-[10px] md:text-xs font-bold px-2 md:px-3 py-1.5 md:py-2 rounded-full border focus:outline-none cursor-pointer min-w-[85px] md:min-w-[110px] ${order.status === 'delivered'
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                              : order.status === 'shipped'
                                 ? 'bg-sky-500/10 text-sky-400 border-sky-500/20'
                                 : order.status === 'cancelled'
-                                ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                                : 'bg-slate-800 text-slate-300 border-slate-700'
-                            }`}
+                                  ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                  : 'bg-slate-800 text-slate-300 border-slate-700'
+                              }`}
                           >
                             <option value="pending">⏳ {t.statusPending}</option>
                             <option value="shipped">📦 {t.statusShipped}</option>
                             <option value="delivered">✅ {t.statusDelivered}</option>
                             <option value="cancelled">❌ {t.statusCancelled}</option>
                           </select>
-                          
+
                           {/* Super convenient mini indicator if GTM fired */}
                           {order.status === 'delivered' && gtmEnabled && (
-                            <span 
-                              className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                            <span
+                              className="text-[8px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
                               title="GTM Pixel Fired!"
                             >
                               GTM✓
@@ -732,13 +730,13 @@ export default function ClientDashboard() {
                       </td>
 
                       {/* Deletion and updates */}
-                      <td className="py-4 px-5 text-center">
+                      <td className="py-3 px-3 md:py-5 md:px-6 text-center">
                         <button
                           onClick={() => handleDeleteOrder(order.id)}
-                          className="p-1.5 hover:bg-red-900/20 hover:text-red-400 text-slate-600 rounded-lg transition-all cursor-pointer"
+                          className="p-1.5 md:p-2 hover:bg-red-900/20 hover:text-red-400 text-slate-600 rounded-lg transition-all cursor-pointer"
                           title="حذف الطلبية"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         </button>
                       </td>
                     </tr>
@@ -752,12 +750,12 @@ export default function ClientDashboard() {
 
       {/* MODAL 1: ADD NEW ORDER */}
       {isAddOrderOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in"
           id="add-order-modal-backdrop"
         >
           <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-xl p-6 sm:p-8 relative shadow-2xl">
-            <button 
+            <button
               onClick={() => setIsAddOrderOpen(false)}
               className="absolute top-4 left-4 p-1.5 bg-slate-950 hover:bg-slate-800 rounded-xl transition-colors border border-slate-800 text-slate-400 hover:text-white"
             >
@@ -779,7 +777,7 @@ export default function ClientDashboard() {
                     required
                     placeholder="مثال: أحمد بوعلام"
                     value={newOrder.name}
-                    onChange={(e) => setNewOrder({...newOrder, name: e.target.value})}
+                    onChange={(e) => setNewOrder({ ...newOrder, name: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
@@ -791,7 +789,7 @@ export default function ClientDashboard() {
                     required
                     placeholder="0554 12 34 56"
                     value={newOrder.phone}
-                    onChange={(e) => setNewOrder({...newOrder, phone: e.target.value})}
+                    onChange={(e) => setNewOrder({ ...newOrder, phone: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
                   />
                 </div>
@@ -805,7 +803,7 @@ export default function ClientDashboard() {
                     required
                     placeholder="الجزائر، وهران، سطيف..."
                     value={newOrder.city}
-                    onChange={(e) => setNewOrder({...newOrder, city: e.target.value})}
+                    onChange={(e) => setNewOrder({ ...newOrder, city: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
@@ -816,7 +814,7 @@ export default function ClientDashboard() {
                     type="text"
                     placeholder="42 / XL / Standard"
                     value={newOrder.size}
-                    onChange={(e) => setNewOrder({...newOrder, size: e.target.value})}
+                    onChange={(e) => setNewOrder({ ...newOrder, size: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
                   />
                 </div>
@@ -828,7 +826,7 @@ export default function ClientDashboard() {
                     min="1"
                     required
                     value={newOrder.quantity}
-                    onChange={(e) => setNewOrder({...newOrder, quantity: parseInt(e.target.value) || 1})}
+                    onChange={(e) => setNewOrder({ ...newOrder, quantity: parseInt(e.target.value) || 1 })}
                     className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
                   />
                 </div>
@@ -842,7 +840,7 @@ export default function ClientDashboard() {
                     required
                     placeholder="مثال: حذاء رياضي كلاسيكي"
                     value={newOrder.product_name}
-                    onChange={(e) => setNewOrder({...newOrder, product_name: e.target.value})}
+                    onChange={(e) => setNewOrder({ ...newOrder, product_name: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500"
                   />
                 </div>
@@ -851,7 +849,7 @@ export default function ClientDashboard() {
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.sourceLabel} *</label>
                   <select
                     value={newOrder.source}
-                    onChange={(e) => setNewOrder({...newOrder, source: e.target.value})}
+                    onChange={(e) => setNewOrder({ ...newOrder, source: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500"
                   >
                     <option value="Facebook Ads">Facebook Ads</option>
@@ -886,12 +884,12 @@ export default function ClientDashboard() {
 
       {/* MODAL 2: UPDATE CLIENT ACCOUNT PASSWORD */}
       {isPasswordModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in"
           id="password-modal-backdrop"
         >
           <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 sm:p-8 relative shadow-2xl">
-            <button 
+            <button
               onClick={() => setIsPasswordModalOpen(false)}
               className="absolute top-4 left-4 p-1.5 bg-slate-950 hover:bg-slate-800 rounded-xl transition-colors border border-slate-800 text-slate-400 hover:text-white"
             >
@@ -958,10 +956,10 @@ export default function ClientDashboard() {
 
       {/* FLOATING ACTION TOAST POPUP NOTIFICATION SCREEN */}
       {toast && (
-        <Toast 
-          message={toast.message} 
-          type={toast.type} 
-          onClose={() => setToast(null)} 
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>
