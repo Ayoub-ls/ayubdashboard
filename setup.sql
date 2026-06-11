@@ -3,7 +3,6 @@ create table clients (
   id          text primary key,
   name        text not null,
   password    text not null,
-  gtm_enabled boolean default true,
   created_at  timestamptz default now()
 );
 
@@ -44,6 +43,6 @@ create policy "allow all" on prices
   for all to anon using (true) with check (true);
 
 -- SEED
-insert into clients (id, name, password, gtm_enabled) values
-  ('amourshop', 'Amourshop', 'amourshop123', true),
-  ('zit108',    'Zit 108',   'zit108123',    true);
+insert into clients (id, name, password) values
+  ('amourshop', 'Amourshop', 'amourshop123'),
+  ('zit108',    'Zit 108',   'zit108123');

@@ -37,7 +37,6 @@ const TRANSLATIONS = {
     clientID: "معرّف الحساب الفريد (ID)",
     clientName: "اسم العميل المتجر/الشركة",
     clientPass: "كلمة مرور الدخول للعميل",
-    gtmDefault: "تفعيل تتبع بكسلات الـ GTM تلقائياً",
     save: "حفظ البيانات",
     cancel: "إلغاء",
     createClientBtn: "إنشاء حساب العميل",
@@ -67,7 +66,6 @@ const TRANSLATIONS = {
     clientID: "Unique Account ID",
     clientName: "Client Business Name",
     clientPass: "Account Password",
-    gtmDefault: "Enable GTM tracking by default",
     save: "Save Data",
     cancel: "Cancel",
     createClientBtn: "Provision Client",
@@ -97,7 +95,6 @@ const TRANSLATIONS = {
     clientID: "ID unique de compte",
     clientName: "Nom commercial du client",
     clientPass: "Mot de passe d'accès",
-    gtmDefault: "Activer le suivi GTM par défaut",
     save: "Enregistrer",
     cancel: "Annuler",
     createClientBtn: "Créer le client",
@@ -155,12 +152,10 @@ export default function SuperAdminPanel() {
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // New Client Form Draft
   const [newClient, setNewClient] = useState({
     id: '',
     name: '',
-    password: '',
-    gtm_enabled: true
+    password: ''
   });
 
   // Client Edit Form Draft (inline or simple modal)
@@ -228,15 +223,14 @@ export default function SuperAdminPanel() {
         body: JSON.stringify({
           id: idClean,
           name: nameClean,
-          password: passClean,
-          gtm_enabled: newClient.gtm_enabled
+          password: passClean
         })
       });
 
       if (response) {
         showNotification("👑 تم إنشاء لوحة تحكم للعميل الجديد بنجاح", "success");
         setIsAddClientOpen(false);
-        setNewClient({ id: '', name: '', password: '', gtm_enabled: true });
+        setNewClient({ id: '', name: '', password: '' });
         loadSystemData();
       }
     } catch (err) {
@@ -267,20 +261,7 @@ export default function SuperAdminPanel() {
     }
   };
 
-  // Toggle Client's GTM status remotely
-  const handleToggleGTMClient = async (clientId, currentStatus) => {
-    try {
-      await sbFetch(`clients?id=eq.${clientId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ gtm_enabled: !currentStatus })
-      });
-      showNotification("⚡ تم تعديل حالة تتبع البكسلات للعميل المختار", "success");
-      loadSystemData();
-    } catch (err) {
-      console.error(err);
-      showNotification("فشل تعديل حالة العميل", "error");
-    }
-  };
+
 
   // Quick Inline Password Update for a client
   const handleSaveClientEdit = async (e) => {
@@ -490,19 +471,6 @@ export default function SuperAdminPanel() {
                             سجل الطلبات: <span className="text-amber-400 font-bold">{clientOrdersCount}</span> طلبيات
                           </p>
                         </div>
-
-                        {/* Remotely Switch GTM status for client */}
-                        <button
-                          onClick={() => handleToggleGTMClient(client.id, client.gtm_enabled)}
-                          className={`text-[9.5px] font-bold px-2 py-1 rounded-lg border transition-all cursor-pointer ${
-                            client.gtm_enabled 
-                              ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20" 
-                              : "bg-slate-900 hover:bg-slate-800 text-slate-400 border-slate-800"
-                          }`}
-                          title="تغيير تفعيل الـ GTM للعميل"
-                        >
-                          {client.gtm_enabled ? "بكسل GTM✓" : "لا بكسل❌"}
-                        </button>
                       </div>
 
                       {/* Display passwords or Credentials editing */}
@@ -598,7 +566,7 @@ export default function SuperAdminPanel() {
                     <th className="p-4 text-right font-bold">{t.wilaya}</th>
                     <th className="p-4 text-right font-bold">{t.productSize}</th>
                     <th className="p-4 text-center font-bold">{t.qty}</th>
-                    <th className="p-4 text-right font-bold">مصدر الإعلان</th>
+                    <th className="p-4 text-right font-bold">نوع المنتج / الموديل</th>
                     <th className="p-4 text-center font-bold">{t.status}</th>
                   </tr>
                 </thead>
@@ -637,7 +605,7 @@ export default function SuperAdminPanel() {
                         {/* Add campaign source */}
                         <td className="p-4">
                           <span className="text-slate-400 bg-slate-950 border border-slate-850 px-2 py-1 rounded-lg">
-                            {order.source || "مباشر"}
+                            {order.source || "غير معروف"}
                           </span>
                         </td>
 
@@ -726,18 +694,7 @@ export default function SuperAdminPanel() {
                 />
               </div>
 
-              <div className="flex items-center gap-2.5 py-2">
-                <input
-                  type="checkbox"
-                  id="gtm_enabled_check"
-                  checked={newClient.gtm_enabled}
-                  onChange={(e) => setNewClient({...newClient, gtm_enabled: e.target.checked})}
-                  className="w-4 h-4 rounded border-slate-800 text-indigo-600 bg-slate-950 focus:ring-0 cursor-pointer"
-                />
-                <label htmlFor="gtm_enabled_check" className="text-xs text-slate-300 select-none cursor-pointer">
-                  {t.gtmDefault}
-                </label>
-              </div>
+
 
               <div className="pt-4 border-t border-slate-800/60 flex justify-end gap-3">
                 <button

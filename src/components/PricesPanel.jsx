@@ -55,7 +55,7 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
     const priceVal = parseInt(newSourcePrice, 10);
 
     if (!name) {
-      setErrorMessage('يرجى تحديد اسم المنصة أو المصدر');
+      setErrorMessage('يرجى تحديد اسم المنتج');
       return;
     }
 
@@ -125,15 +125,15 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
             <Settings2 className="w-4 h-4" />
           </div>
           <div className="text-right">
-            <h4 className="text-sm font-bold text-slate-200">إعداد أسعار المنصات والمصادر</h4>
-            <p className="text-[10px] text-slate-500">تخصيص قيمة مبيعات كل مصدر طلب (فيسبوك، أنستغرام، إلخ)</p>
+            <h4 className="text-sm font-bold text-slate-200">إعداد أسعار المنتجات</h4>
+            <p className="text-[10px] text-slate-500">تخصيص قيمة مبيعات كل منتج (product-a، product-b، إلخ)</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {Object.keys(draftPrices).length > 0 && (
             <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full font-bold">
-              {Object.keys(draftPrices).length} منصات
+              {Object.keys(draftPrices).length} منتجات
             </span>
           )}
           {isOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
@@ -147,7 +147,7 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
           <div className="space-y-3.5">
             {Object.keys(draftPrices).length === 0 ? (
               <p className="text-xs text-slate-500 text-center py-4">
-                لا توجد مصادر معروفة بعد. أضف مصدراً جديداً بالأسفل للبدء.
+                لا توجد منتجات معروفة بعد. أضف منتجاً جديداً بالأسفل للبدء.
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -181,11 +181,11 @@ export default function PricesPanel({ clientId, orders = [], prices = [], onPric
             className="p-4 bg-slate-950/40 rounded-xl border border-slate-800/60 space-y-3"
             id="add-custom-source-form"
           >
-            <div className="text-[11px] font-bold text-slate-400 mb-1">إضافة منصة أو مصدر إعلاني جديد يدوياً:</div>
+            <div className="text-[11px] font-bold text-slate-400 mb-1">إضافة منتج جديد يدوياً:</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <input
                 type="text"
-                placeholder="اسم المنصة (مثال: TikTok)"
+                placeholder="اسم المنتج (مثال: product-a)"
                 value={newSourceName}
                 onChange={(e) => setNewSourceName(e.target.value)}
                 className="bg-slate-900 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500"

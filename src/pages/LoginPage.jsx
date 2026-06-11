@@ -40,7 +40,6 @@ export default function LoginPage() {
       if (client && client.password === password) {
         sessionStorage.setItem('client_id', client.id);
         sessionStorage.setItem('client_name', client.name);
-        sessionStorage.setItem('gtm_enabled', client.gtm_enabled);
         navigate('/dashboard');
       } else {
         setError('اسم العميل أو كلمة المرور غير صحيحة');

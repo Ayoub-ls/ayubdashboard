@@ -29,9 +29,7 @@ import {
 const TRANSLATIONS = {
   ar: {
     dashboardTitle: "لوحة التحكم",
-    subTitle: "نظام إدارة المبيعات وتتبع بكسلات الـ GTM للـ COD",
-    gtmEnabled: "GTM مفعّل",
-    gtmDisabled: "GTM معطل",
+    subTitle: "نظام إدارة المبيعات للـ COD",
     logout: "تسجيل الخروج",
     changePassword: "تغيير كلمة المرور",
     searchPlaceholder: "بحث عن زبون بالاسم أو الهاتف...",
@@ -59,22 +57,18 @@ const TRANSLATIONS = {
     phoneLabel: "رقم الهاتف",
     wilayaLabel: "الولاية",
     sizeLabel: "المقاس (اختياري)",
-    sourceLabel: "منصة طلب المنتج (المصدر)",
+    sourceLabel: "نوع المنتج / الموديل",
     productNameLabel: "اسم المنتج",
     addOrderBtn: "إضافة الطلب",
     updating: "جاري التحديث...",
     addSuccess: "✅ تم إضافة الطلبية بنجاح",
     deleteSuccess: "🗑️ تم حذف الطلبية بنجاح",
     passwordSuccess: "🔑 تم تغيير كلمة المرور بنجاح",
-    pixelFired: "🔥 تم إرسال بكسل الشراء بنجاح عبر GTM!",
-    pixelValue: "القيمة المرسلة: {value} DA للزبون {customer}",
     deleteConfirm: "هل أنت متأكد من حذف هذه الطلبية؟"
   },
   en: {
     dashboardTitle: "Dashboard",
-    subTitle: "Sales & GTM Pixel Tracking Management System for COD",
-    gtmEnabled: "GTM Active",
-    gtmDisabled: "GTM Inactive",
+    subTitle: "Sales Management System for COD",
     logout: "Log Out",
     changePassword: "Change Password",
     searchPlaceholder: "Search customer by name or phone...",
@@ -102,22 +96,18 @@ const TRANSLATIONS = {
     phoneLabel: "Phone Number",
     wilayaLabel: "City/Wilaya",
     sizeLabel: "Size (Optional)",
-    sourceLabel: "Platform Source",
+    sourceLabel: "Product Model",
     productNameLabel: "Product Name",
     addOrderBtn: "Add Order",
     updating: "Updating...",
     addSuccess: "✅ Order successfully added",
     deleteSuccess: "🗑️ Order successfully deleted",
     passwordSuccess: "🔑 Password successfully updated",
-    pixelFired: "🔥 Purchase Pixel Fired Successfully via GTM!",
-    pixelValue: "Sent Value: {value} DA for {customer}",
     deleteConfirm: "Are you sure you want to delete this order?"
   },
   fr: {
     dashboardTitle: "Tableau de Bord",
-    subTitle: "Gestion des ventes & Suivi des Pixels GTM pour COD-Ecom",
-    gtmEnabled: "GTM Activé",
-    gtmDisabled: "GTM Désactivé",
+    subTitle: "Gestion des ventes pour COD-Ecom",
     logout: "Se Déconnecter",
     changePassword: "Modifier le mot de passe",
     searchPlaceholder: "Rechercher client par nom ou téléphone...",
@@ -145,15 +135,13 @@ const TRANSLATIONS = {
     phoneLabel: "Numéro de téléphone",
     wilayaLabel: "Ville / Wilaya",
     sizeLabel: "Taille (Optionnel)",
-    sourceLabel: "Source de la commande",
+    sourceLabel: "Modèle de produit",
     productNameLabel: "Nom du produit",
     addOrderBtn: "Créer la commande",
     updating: "Mise à jour...",
     addSuccess: "✅ Commande ajoutée avec succès",
     deleteSuccess: "🗑️ Commande supprimée avec succès",
     passwordSuccess: "🔑 Mot de passe mis à jour avec succès",
-    pixelFired: "🔥 Pixel d'achat GTM envoyé avec succès !",
-    pixelValue: "Valeur envoyée: {value} DA pour le client {customer}",
     deleteConfirm: "Voulez-vous vraiment supprimer cette commande ?"
   }
 };
@@ -174,7 +162,7 @@ export default function ClientDashboard() {
   // App States
   const [orders, setOrders] = useState([]);
   const [prices, setPrices] = useState([]);
-  const [gtmEnabled, setGtmEnabled] = useState(true);
+
 
   // UI States
   const [searchQuery, setSearchQuery] = useState('');
@@ -197,7 +185,7 @@ export default function ClientDashboard() {
     size: '42',
     quantity: 1,
     product_name: '',
-    source: 'Facebook Ads',
+    source: 'product-a',
     status: 'pending'
   });
 
@@ -222,12 +210,7 @@ export default function ClientDashboard() {
       const pricesData = await sbFetch(`prices?client_id=eq.${clientId}`);
       setPrices(pricesData || []);
 
-      // 3. Fetch Client config to check real GTM status
-      const clientProfile = await sbFetch(`clients?id=eq.${clientId}`);
-      if (clientProfile && clientProfile.length > 0) {
-        setGtmEnabled(clientProfile[0].gtm_enabled);
-        sessionStorage.setItem('gtm_enabled', clientProfile[0].gtm_enabled);
-      }
+
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
       showNotification("حدث خطأ أثناء تحميل البيانات من الخادم", "error");
@@ -235,6 +218,15 @@ export default function ClientDashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (prices.length > 0) {
+      const prodList = prices.map(p => p.source).filter(Boolean);
+      if (prodList.length > 0 && !prodList.includes(newOrder.source)) {
+        setNewOrder(prev => ({ ...prev, source: prodList[0] }));
+      }
+    }
+  }, [prices]);
 
   useEffect(() => {
     fetchData();
@@ -251,26 +243,7 @@ export default function ClientDashboard() {
     localStorage.setItem("dashboard_lang", newLang);
   };
 
-  // Toggle GTM Status
-  const toggleGTM = async () => {
-    try {
-      const updated = await sbFetch(`clients?id=eq.${clientId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ gtm_enabled: !gtmEnabled })
-      });
-      if (updated) {
-        setGtmEnabled(!gtmEnabled);
-        sessionStorage.setItem('gtm_enabled', (!gtmEnabled).toString());
-        showNotification(
-          !gtmEnabled ? "✅ تم تفعيل بكسلات الـ GTM بنجاح" : "⚠️ تم تعطيل بكسلات الـ GTM",
-          "grey"
-        );
-      }
-    } catch (err) {
-      console.error(err);
-      showNotification("فشل تحديث إعدادات GTM", "error");
-    }
-  };
+
 
   // Add Order Handler
   const handleAddOrderSubmit = async (e) => {
@@ -307,7 +280,7 @@ export default function ClientDashboard() {
           size: '42',
           quantity: 1,
           product_name: '',
-          source: 'Facebook Ads',
+          source: 'product-a',
           status: 'pending'
         });
         fetchData();
@@ -355,21 +328,7 @@ export default function ClientDashboard() {
           "success"
         );
 
-        // PIXEL TRIGGER EVENT SIMULATION
-        // If switched to 'delivered' AND GTM is enabled, fire the Pixel Purchase Tag
-        if (newStatus === 'delivered' && gtmEnabled) {
-          const price = getSourcePrice(orderItem.source);
-          const totalValue = price * (orderItem.quantity || 1);
 
-          // Formulate custom nice toast for pixel fire
-          setTimeout(() => {
-            const pixelMsg = t.pixelFired;
-            const detailMsg = t.pixelValue.replace("{value}", totalValue.toLocaleString()).replace("{customer}", orderItem.name);
-
-            // Show double toast or specific styling
-            showNotification(`${pixelMsg} \n ${detailMsg}`, "success");
-          }, 800);
-        }
 
         // Reload data
         fetchData();
@@ -455,6 +414,10 @@ export default function ClientDashboard() {
     new Set(orders.map((o) => o.source).filter((s) => s && s.trim() !== ''))
   );
 
+  const availableProducts = prices.length > 0
+    ? Array.from(new Set(prices.map(p => p.source).filter(Boolean)))
+    : ['product-a', 'product-b'];
+
   return (
     <div
       className="min-h-screen bg-slate-950 text-slate-100 flex flex-col p-5 sm:p-8 selection:bg-emerald-500/30 selection:text-emerald-200"
@@ -481,27 +444,6 @@ export default function ClientDashboard() {
 
         {/* Action Controls & Language Selector */}
         <div className="flex flex-wrap items-center gap-2.5" id="navbar-actions">
-          {/* GTM Badge */}
-          <span className={`flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full border font-bold transition-colors ${gtmEnabled
-            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-            : "bg-slate-800 text-slate-500 border-slate-700"
-            }`} id="gtm-indicator-badge">
-            <span className={`w-1.5 h-1.5 rounded-full ${gtmEnabled ? "bg-emerald-500 animate-pulse" : "bg-slate-500"}`} />
-            {gtmEnabled ? t.gtmEnabled : t.gtmDisabled}
-          </span>
-
-          {/* Separator */}
-          <div className="w-px h-6 bg-slate-800 mx-1 hidden sm:block" />
-
-          {/* GTM Toggle Switch Tool */}
-          <button
-            onClick={toggleGTM}
-            title="تبديل تفعيل أو تعطيل بكسل جوجل"
-            className="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1.5 transition-all active:scale-95"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{gtmEnabled ? "بكسل GTM نشط" : "تشغيل بكسل GTM"}</span>
-          </button>
 
           {/* Languages Dropdown/Toggle Group */}
           <div className="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-0.5" id="lang-switch-group">
@@ -592,13 +534,12 @@ export default function ClientDashboard() {
               <option value="cancelled">❌ {t.statusCancelled}</option>
             </select>
 
-            {/* Source platform dropdown filter */}
             <select
               value={sourceFilter}
               onChange={(e) => setSourceFilter(e.target.value)}
               className="bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl focus:outline-none text-slate-300 min-w-[130px]"
             >
-              <option value="all">🔗 جميع مصادر الإعلان</option>
+              <option value="all">📦 جميع المنتجات</option>
               {uniquePlatformSources.map((source, i) => (
                 <option key={i} value={source}>{source}</option>
               ))}
@@ -717,15 +658,6 @@ export default function ClientDashboard() {
                             <option value="cancelled">❌ {t.statusCancelled}</option>
                           </select>
 
-                          {/* Super convenient mini indicator if GTM fired */}
-                          {order.status === 'delivered' && gtmEnabled && (
-                            <span
-                              className="text-[8px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
-                              title="GTM Pixel Fired!"
-                            >
-                              GTM✓
-                            </span>
-                          )}
                         </div>
                       </td>
 
@@ -852,11 +784,9 @@ export default function ClientDashboard() {
                     onChange={(e) => setNewOrder({ ...newOrder, source: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500"
                   >
-                    <option value="Facebook Ads">Facebook Ads</option>
-                    <option value="Instagram">Instagram</option>
-                    <option value="Snapchat">Snapchat</option>
-                    <option value="Google Ads">Google Ads</option>
-                    <option value="TikTok">TikTok Ads</option>
+                    {availableProducts.map((prod, i) => (
+                      <option key={i} value={prod}>{prod}</option>
+                    ))}
                   </select>
                 </div>
               </div>
