@@ -11,40 +11,40 @@ export default function Toast({ message, type, onClose }) {
   }, [message, onClose]);
 
   // Determine styling based on type
-  let bgClass = 'bg-slate-800 border-slate-700';
+  let borderClass = 'border-l-4 border-slate-400';
   let Icon = Info;
-  let textColor = 'text-slate-200';
+  let iconColor = 'text-slate-500';
 
   if (type === 'success') {
-    bgClass = 'bg-emerald-600/90 border-emerald-500 backdrop-blur-md shadow-emerald-950/20';
+    borderClass = 'border-l-4 border-green-500';
     Icon = CheckCircle2;
-    textColor = 'text-white';
+    iconColor = 'text-green-500';
   } else if (type === 'grey') {
-    bgClass = 'bg-slate-800/95 border-slate-700 backdrop-blur-md shadow-slate-950/20';
+    borderClass = 'border-l-4 border-slate-400';
     Icon = Info;
-    textColor = 'text-slate-300';
+    iconColor = 'text-slate-400';
   } else if (type === 'error') {
-    bgClass = 'bg-rose-600/90 border-rose-500 backdrop-blur-md shadow-rose-950/20';
+    borderClass = 'border-l-4 border-red-500';
     Icon = AlertCircle;
-    textColor = 'text-white';
+    iconColor = 'text-red-500';
   }
 
   return (
     <div 
       id="custom-toast"
-      className={`fixed bottom-6 left-6 z-50 flex items-center gap-3 px-4 py-3.5 rounded-2xl border ${bgClass} ${textColor} shadow-2xl transition-all duration-300 transform translate-y-0 scale-100 animate-slide-in max-w-sm pointer-events-auto`}
+      className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3.5 rounded-lg bg-white ${borderClass} text-slate-800 shadow-lg max-w-sm pointer-events-auto border border-slate-200`}
     >
-      <div className="bg-white/10 p-1.5 rounded-xl shrink-0">
+      <div className={`shrink-0 ${iconColor}`}>
         <Icon className="w-5 h-5" />
       </div>
       
-      <div className="flex-1 pr-1 font-medium text-xs leading-relaxed text-right md:text-sm">
+      <div className="flex-1 pr-1 font-medium text-xs leading-relaxed text-right md:text-sm text-slate-700">
         {message}
       </div>
 
       <button 
         onClick={onClose}
-        className="text-white/60 hover:text-white hover:bg-white/10 p-1 rounded-lg transition-colors shrink-0"
+        className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1 rounded-lg transition-colors shrink-0"
         aria-label="Close"
       >
         <X className="w-4 h-4" />

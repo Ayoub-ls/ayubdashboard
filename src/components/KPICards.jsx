@@ -41,64 +41,73 @@ export default function KPICards({ orders = [], prices = [] }) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="kpi-cards-grid" dir="rtl">
       {/* 1. إجمالي المبيعات (Revenue) */}
-      <div className="bg-slate-900 border border-slate-800/60 p-5 rounded-2xl relative overflow-hidden hover:border-emerald-500/30 transition-all">
+      <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">إجمالي المبيعات</p>
-          <div className="text-emerald-500 bg-emerald-500/10 p-2 rounded-xl">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">إجمالي المبيعات</p>
+          <div className="text-green-600 bg-green-50 p-2 rounded-lg">
             <DollarSign className="w-4 h-4" />
           </div>
         </div>
-        <h2 className="text-2xl font-black text-white tracking-tight">
-          {totalRevenue.toLocaleString()} <span className="text-xs font-normal text-slate-500 mr-1">DA</span>
+        <h2 className="text-2xl font-black text-[#0F172A] tracking-tight">
+          {totalRevenue.toLocaleString()} <span className="text-xs font-normal text-slate-400 mr-1">DA</span>
         </h2>
+        <div className="w-full mt-3 h-1 bg-slate-100 rounded-full overflow-hidden">
+          <div className="bg-green-500 h-full w-full rounded-full" />
+        </div>
       </div>
 
       {/* 2. إجمالي الطلبات (Total Orders) */}
-      <div className="bg-slate-900 border border-slate-800/60 p-5 rounded-2xl relative overflow-hidden hover:border-emerald-500/30 transition-all">
+      <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">إجمالي الطلبات</p>
-          <div className="text-sky-400 bg-sky-500/10 p-2 rounded-xl">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">إجمالي الطلبات</p>
+          <div className="text-blue-600 bg-blue-50 p-2 rounded-lg">
             <ShoppingBag className="w-4 h-4" />
           </div>
         </div>
-        <h2 className="text-2xl font-black text-white tracking-tight">
+        <h2 className="text-2xl font-black text-[#0F172A] tracking-tight">
           {totalOrders.toLocaleString()}
         </h2>
+        <div className="w-full mt-3 h-1 bg-slate-100 rounded-full overflow-hidden">
+          <div className="bg-blue-500 h-full w-full rounded-full" />
+        </div>
       </div>
 
       {/* 3. القطع المباعة (Total Items Sold) */}
-      <div className="bg-slate-900 border border-slate-800/60 p-5 rounded-2xl relative overflow-hidden hover:border-emerald-500/30 transition-all">
+      <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">القطع المباعة</p>
-          <div className="text-amber-400 bg-amber-500/10 p-2 rounded-xl">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">القطع المباعة</p>
+          <div className="text-amber-600 bg-amber-50 p-2 rounded-lg">
             <ShoppingBasket className="w-4 h-4" />
           </div>
         </div>
-        <h2 className="text-2xl font-black text-white tracking-tight">
+        <h2 className="text-2xl font-black text-[#0F172A] tracking-tight">
           {totalItems.toLocaleString()}
         </h2>
+        <div className="w-full mt-3 h-1 bg-slate-100 rounded-full overflow-hidden">
+          <div className="bg-amber-500 h-full w-full rounded-full" />
+        </div>
       </div>
 
       {/* 4. معدل التسليم (Delivery Rate) */}
-      <div className="bg-slate-900 border border-slate-800/60 p-5 rounded-2xl relative overflow-hidden hover:border-emerald-500/30 transition-all">
+      <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">معدل التسليم</p>
-          <div className="text-emerald-400 bg-emerald-500/10 p-2 rounded-xl">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">معدل التسليم</p>
+          <div className="text-purple-600 bg-purple-50 p-2 rounded-lg">
             <Truck className="w-4 h-4" />
           </div>
         </div>
         <div>
           <div className="flex items-baseline gap-0.5">
-            <h2 className="text-2xl font-black text-white tracking-tight">
+            <h2 className="text-2xl font-black text-[#0F172A] tracking-tight">
               {literalDeliveryRate}
             </h2>
-            <span className="text-sm text-slate-500">%</span>
+            <span className="text-sm text-slate-400">%</span>
           </div>
           
           {/* Delivery Rate progress bar */}
-          <div className="w-full mt-3 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+          <div className="w-full mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
             <div 
-              className="bg-emerald-500 h-full transition-all duration-500 rounded-full" 
+              className="bg-[#2563EB] h-full transition-all duration-500 rounded-full" 
               style={{ width: `${Math.min(literalDeliveryRate, 100)}%` }} 
             />
           </div>

@@ -8,31 +8,32 @@
 body {
   font-family: 'Tajawal', 'Inter', sans-serif;
   direction: rtl;
+  background-color: #F8F9FC;
 }
 
-/* Custom thin dark scrollbar */
+/* Light theme scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #F1F5F9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #CBD5E1;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94A3B8;
 }
 
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #334155 #0f172a;
+  scrollbar-color: #CBD5E1 #F1F5F9;
 }
 
 /* Smooth transitions */

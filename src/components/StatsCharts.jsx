@@ -52,12 +52,12 @@ export default function StatsCharts({ orders = [], prices = [] }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6" id="stats-charts-container" dir="rtl">
       {/* CHART 1: Top 5 Wilayas */}
-      <div className="bg-slate-900 border border-slate-800/60 rounded-2xl p-6">
-        <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-6">
+      <div className="bg-white border border-slate-100 rounded-xl shadow-sm p-6">
+        <h3 className="text-sm font-semibold text-slate-700 mb-6">
           أعلى 5 ولايات
         </h3>
         {sortedWilayas.length === 0 ? (
-          <p className="text-slate-500 text-xs text-center py-6">لا توجد بيانات متاحة حالياً</p>
+          <p className="text-slate-400 text-xs text-center py-6">لا توجد بيانات متاحة حالياً</p>
         ) : (
           <div className="space-y-4">
             {sortedWilayas.map((item, idx) => {
@@ -65,14 +65,14 @@ export default function StatsCharts({ orders = [], prices = [] }) {
               return (
                 <div key={idx} className="space-y-1.5" id={`wilaya-bar-${idx}`}>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-200 font-medium">{item.name}</span>
-                    <span className="font-mono text-emerald-400 font-bold text-[11px]">
+                    <span className="text-slate-700 font-medium">{item.name}</span>
+                    <span className="font-mono text-[#2563EB] font-bold text-[11px]">
                       {item.count} طلبيات
                     </span>
                   </div>
-                  <div className="h-2 bg-slate-950 rounded-full overflow-hidden">
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                      className="h-full bg-[#2563EB] rounded-full transition-all duration-500"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
@@ -84,13 +84,13 @@ export default function StatsCharts({ orders = [], prices = [] }) {
       </div>
 
       {/* CHART 2: Revenue per source */}
-      <div className="bg-slate-900 border border-slate-800/60 rounded-2xl p-6 flex flex-col">
-        <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-6">
+      <div className="bg-white border border-slate-100 rounded-xl shadow-sm p-6 flex flex-col">
+        <h3 className="text-sm font-semibold text-slate-700 mb-6">
           الإيرادات حسب مصدر الطلب
         </h3>
 
         {sortedSources.length === 0 ? (
-          <p className="text-slate-500 text-xs text-center py-10 my-auto">لا توجد مبيعات نشطة حالياً</p>
+          <p className="text-slate-400 text-xs text-center py-10 my-auto">لا توجد مبيعات نشطة حالياً</p>
         ) : (
           <div className="flex-1 flex flex-col justify-center space-y-3.5">
             {sortedSources.map((item, idx) => {
@@ -98,14 +98,14 @@ export default function StatsCharts({ orders = [], prices = [] }) {
               return (
                 <div key={idx} className="space-y-1.5" id={`source-bar-${idx}`}>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-200 font-medium">{item.name}</span>
-                    <span className="font-mono text-emerald-400 font-bold text-[11px]">
+                    <span className="text-slate-700 font-medium">{item.name}</span>
+                    <span className="font-mono text-[#2563EB] font-bold text-[11px]">
                       {item.revenue.toLocaleString()} DA
                     </span>
                   </div>
-                  <div className="h-2 bg-slate-950 rounded-full overflow-hidden">
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-emerald-500/80 rounded-full transition-all duration-500"
+                      className="h-full bg-blue-400 rounded-full transition-all duration-500"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>

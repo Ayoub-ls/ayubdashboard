@@ -5,6 +5,7 @@ import KPICards from '../components/KPICards';
 import StatsCharts from '../components/StatsCharts';
 import PricesPanel from '../components/PricesPanel';
 import Toast from '../components/Toast';
+import OrderCards from './OrderCards';
 import {
   LogOut,
   Plus,
@@ -23,7 +24,12 @@ import {
   CheckCircle,
   Truck,
   RotateCcw,
-  Check
+  Check,
+  LayoutDashboard,
+  ShoppingCart,
+  Tag,
+  RefreshCw,
+  Code2
 } from 'lucide-react';
 
 const TRANSLATIONS = {
@@ -176,6 +182,7 @@ export default function ClientDashboard() {
 
   // Toasts
   const [toast, setToast] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null);
 
   // New Order Form Draft
   const [newOrder, setNewOrder] = useState({
@@ -294,7 +301,7 @@ export default function ClientDashboard() {
   // Delete Order
   const handleDeleteOrder = async (orderId) => {
     if (!window.confirm(t.deleteConfirm)) return;
-
+    setUpdatingId(orderId);
     try {
       await sbFetch(`orders?id=eq.${orderId}`, {
         method: "DELETE"
@@ -304,6 +311,8 @@ export default function ClientDashboard() {
     } catch (err) {
       console.error(err);
       showNotification("حدث خطأ أثناء محاولة حذف الطلبية", "error");
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -316,6 +325,7 @@ export default function ClientDashboard() {
 
   // Update order status with real-time Pixel Fire event simulation
   const handleUpdateStatus = async (orderId, newStatus, orderItem) => {
+    setUpdatingId(orderId);
     try {
       const updated = await sbFetch(`orders?id=eq.${orderId}`, {
         method: "PATCH",
@@ -336,6 +346,8 @@ export default function ClientDashboard() {
     } catch (err) {
       console.error(err);
       showNotification("فشل تحديث حالة الطلب", "error");
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -418,480 +430,512 @@ export default function ClientDashboard() {
     ? Array.from(new Set(prices.map(p => p.source).filter(Boolean)))
     : ['product-a', 'product-b'];
 
+  const [activeNav, setActiveNav] = useState('dashboard');
+
+  const navLinks = [
+    { id: 'dashboard', icon: LayoutDashboard, label: isRtl ? 'لوحة التحكم' : 'Dashboard' },
+    { id: 'orders', icon: ShoppingCart, label: isRtl ? 'الطلبات' : 'Orders' },
+    { id: 'prices', icon: Tag, label: isRtl ? 'الأسعار' : 'Prices' },
+    { id: 'settings', icon: Settings, label: isRtl ? 'الإعدادات' : 'Settings' },
+  ];
+
   return (
     <div
-      className="min-h-screen bg-slate-950 text-slate-100 flex flex-col p-5 sm:p-8 selection:bg-emerald-500/30 selection:text-emerald-200"
+      className="min-h-screen bg-[#F8F9FC] flex"
       dir={isRtl ? "rtl" : "ltr"}
       id="client-dashboard-layout"
     >
-      {/* HEADER NAVBAR */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8 border-b border-slate-800/60 pb-6" id="dashboard-header">
-        <div className="flex items-center gap-4">
-          <div className="bg-emerald-500/10 p-3 rounded-2xl shrink-0 border border-emerald-500/20">
-            <ShoppingBag className="w-6 h-6 text-emerald-400" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black tracking-tight text-white">
-              {clientName}
-            </h1>
-            <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
-              <span>{t.subTitle}</span>
-              <span className="text-slate-700">•</span>
-              <span className="font-mono text-slate-600 uppercase tracking-wider text-[9px]">ID: {clientId}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Action Controls & Language Selector */}
-        <div className="flex flex-wrap items-center gap-2.5" id="navbar-actions">
-
-          {/* Languages Dropdown/Toggle Group */}
-          <div className="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-0.5" id="lang-switch-group">
-            <button
-              onClick={() => handleLanguageChange('ar')}
-              className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all ${lang === 'ar' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
-            >
-              عربي
-            </button>
-            <button
-              onClick={() => handleLanguageChange('fr')}
-              className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all ${lang === 'fr' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
-            >
-              Fr
-            </button>
-            <button
-              onClick={() => handleLanguageChange('en')}
-              className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all ${lang === 'en' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}
-            >
-              En
-            </button>
-          </div>
-
-          {/* Separator */}
-          <div className="w-px h-6 bg-slate-800 mx-1 hidden sm:block" />
-
-          <button
-            onClick={() => setIsPasswordModalOpen(true)}
-            className="px-3 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl transition-all flex items-center gap-1.5 active:scale-95"
-            id="change-pwd-btn"
-          >
-            <KeyRound className="w-3.5 h-3.5" />
-            <span>{t.changePassword}</span>
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="px-3 py-2 text-xs bg-slate-800 hover:bg-red-900/30 hover:text-red-400 text-slate-300 rounded-xl transition-all font-semibold flex items-center gap-1.5 active:scale-95 border border-slate-700 hover:border-red-900/30"
-            id="logout-btn"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>{t.logout}</span>
-          </button>
-        </div>
-      </header>
-
-      {/* DYNAMIC KPI CARDS (Real-time analytics) */}
-      <KPICards orders={orders} prices={prices} />
-
-      {/* STATS AND VISUAL CHARTS */}
-      <StatsCharts orders={orders} prices={prices} />
-
-      {/* CONFIG PANEL: SOURCE PRICING WIDGET */}
-      <PricesPanel
-        clientId={clientId}
-        orders={orders}
-        prices={prices}
-        onPricesSaved={fetchData}
-      />
-
-      {/* TABLE FILTERS & DATA GRID CONTROLS */}
-      <div className="bg-slate-900 border border-slate-800/60 rounded-2xl flex flex-col overflow-hidden" id="data-grid-section">
-        {/* Table Filter Top Bar */}
-        <div className="p-5 border-b border-slate-800/60 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            {/* Search input field */}
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute right-3 top-2.5 h-4 w-4 text-slate-500" />
-              <input
-                type="text"
-                placeholder={t.searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-slate-950 border border-slate-800 text-xs px-10 py-2.5 rounded-xl w-full focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-right"
-              />
+      {/* MAIN CONTENT */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* TOP BAR */}
+        <header className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between sticky top-0 z-20 gap-4" id="dashboard-header">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-50 p-2 rounded-xl shrink-0">
+              <ShoppingBag className="w-5 h-5 text-[#2563EB]" />
             </div>
+            <div className="overflow-hidden">
+              <p className="text-sm font-bold text-[#0F172A] truncate">{clientName}</p>
+              <p className="text-[10px] text-slate-400 font-mono truncate">ID: {clientId}</p>
+            </div>
+          </div>
 
-            {/* Status dropdown filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl focus:outline-none text-slate-300 min-w-[120px]"
-            >
-              <option value="all">🔍 {t.statusAll}</option>
-              <option value="pending">⏳ {t.statusPending}</option>
-              <option value="shipped">📦 {t.statusShipped}</option>
-              <option value="delivered">✅ {t.statusDelivered}</option>
-              <option value="cancelled">❌ {t.statusCancelled}</option>
-            </select>
-
-            <select
-              value={sourceFilter}
-              onChange={(e) => setSourceFilter(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl focus:outline-none text-slate-300 min-w-[130px]"
-            >
-              <option value="all">📦 جميع المنتجات</option>
-              {uniquePlatformSources.map((source, i) => (
-                <option key={i} value={source}>{source}</option>
+          <div className="flex flex-wrap items-center gap-3" id="navbar-actions">
+            {/* Language switcher */}
+            <div className="flex items-center bg-slate-100 rounded-lg p-0.5" id="lang-switch-group">
+              {['ar', 'fr', 'en'].map(l => (
+                <button key={l} onClick={() => handleLanguageChange(l)}
+                  className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${lang === l ? 'bg-white text-[#2563EB] shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                    }`}>
+                  {l === 'ar' ? 'عربي' : l === 'fr' ? 'Fr' : 'En'}
+                </button>
               ))}
-            </select>
-          </div>
+            </div>
 
-          {/* Action Trigger button to Add Order */}
-          <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-            <span className="text-[10px] text-slate-500 font-mono hidden sm:inline-block">
-              {t.showCount.replace("{count}", filteredOrders.length).replace("{total}", orders.length)}
-            </span>
+            <button onClick={fetchData} className="p-2 text-slate-500 hover:text-[#2563EB] hover:bg-blue-50 rounded-lg border border-slate-200 transition-all" title="تحديث">
+              <RefreshCw className="w-4 h-4" />
+            </button>
+
             <button
-              onClick={() => setIsAddOrderOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
-              id="open-add-order-modal-btn"
+              onClick={() => setIsPasswordModalOpen(true)}
+              className="px-3 py-2 text-xs text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-all flex items-center gap-1.5"
+              id="change-pwd-btn"
             >
-              <Plus className="w-4 h-4" />
-              <span>{t.addOrderTitle}</span>
+              <KeyRound className="w-3.5 h-3.5" />
+              <span>{t.changePassword}</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-3 py-2 text-xs text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-100 transition-all cursor-pointer"
+              id="logout-btn"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>{t.logout}</span>
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* MAIN DATA GRID TABLE */}
-        <div className="overflow-x-auto">
-          {filteredOrders.length === 0 ? (
-            <div className="text-center py-16 px-4" id="empty-table-state">
-              <p className="text-slate-400 text-sm font-semibold mb-2">لا توجد طلبيات مطابقة لمعايير البحث والفرز</p>
-              <p className="text-slate-600 text-xs">أضف طلبيات جديدة أو اضبط حقول الفلترة بالأعلى.</p>
-            </div>
-          ) : (
-            <table className="w-full text-right" id="orders-main-table">
-              <thead>
-                <tr className="sticky top-0 bg-slate-900 text-[10px] md:text-xs text-slate-400 uppercase tracking-wider border-b border-slate-800">
-                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">{t.customer}</th>
-                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">{t.wilaya}</th>
-                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">{t.productSize}</th>
-                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-center">{t.qty}</th>
-                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">{t.priceAmount}</th>
-                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-right">رأس المال / المصدر</th>
-                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-center">{t.status}</th>
-                  <th className="py-3 px-3 md:py-5 md:px-6 font-bold text-center">{t.actions}</th>
-                </tr>
-              </thead>
-              <tbody className="text-xs md:text-sm">
-                {filteredOrders.map((order, idx) => {
-                  const singlePrice = getSourcePrice(order.source);
-                  const totalOrderPrice = singlePrice * (order.quantity || 1);
+        {/* SCROLLABLE CONTENT */}
+        <div className="flex-1 p-6 overflow-auto">
+
+          {/* DYNAMIC KPI CARDS (Real-time analytics) */}
+          <KPICards orders={orders} prices={prices} />
+
+          {/* STATS AND VISUAL CHARTS */}
+          <StatsCharts orders={orders} prices={prices} />
+
+          {/* CONFIG PANEL: SOURCE PRICING WIDGET */}
+          <PricesPanel
+            clientId={clientId}
+            orders={orders}
+            prices={prices}
+            onPricesSaved={fetchData}
+          />
+
+          {/* Desktop table */}
+          <div className="hidden md:block">
+            {/* TABLE FILTERS & DATA GRID CONTROLS */}
+            <div className="bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col overflow-hidden" id="data-grid-section">
+              {/* Tab Filters */}
+              <div className="flex items-center border-b border-slate-100 px-4 gap-1 overflow-x-auto">
+                {[
+                  { key: 'all', label: isRtl ? 'كل الطلبات' : 'All' },
+                  { key: 'confirmed', label: isRtl ? 'مؤكد' : 'Confirmed' },
+                  { key: 'pending', label: isRtl ? 'في الانتظار' : 'Pending' },
+                  { key: 'cancelled', label: isRtl ? 'ملغي' : 'Cancelled' },
+                  { key: 'delivered', label: isRtl ? 'تم التسليم' : 'Delivered' },
+                ].map(tab => {
+                  const count = tab.key === 'all' ? orders.length : orders.filter(o => o.status === tab.key).length;
                   return (
-                    <tr
-                      key={order.id || idx}
-                      className={`hover:bg-slate-800/50 transition-colors border-b border-slate-800/30 ${idx % 2 === 0 ? 'bg-slate-900' : 'bg-slate-950'}`}
-                      id={`order-row-${order.id}`}
+                    <button
+                      key={tab.key}
+                      onClick={() => setStatusFilter(tab.key)}
+                      className={`flex items-center gap-1.5 px-4 py-3.5 text-xs font-medium whitespace-nowrap border-b-2 transition-all ${statusFilter === tab.key
+                          ? 'border-[#2563EB] text-[#2563EB]'
+                          : 'border-transparent text-slate-500 hover:text-slate-700'
+                        }`}
                     >
-                      {/* Customer Details */}
-                      <td className="py-3 px-3 md:py-5 md:px-6">
-                        <div className="font-bold text-slate-100 text-xs md:text-sm whitespace-nowrap">{order.name}</div>
-                        <div className="text-[10px] md:text-xs text-slate-500 font-mono mt-0.5 md:mt-1 whitespace-nowrap">{order.phone}</div>
-                      </td>
-
-                      {/* City/Wilaya */}
-                      <td className="py-3 px-3 md:py-5 md:px-6 text-slate-300 font-medium text-xs md:text-sm">
-                        {order.city || "غير محدد"}
-                      </td>
-
-                      {/* Product & Size */}
-                      <td className="py-3 px-3 md:py-5 md:px-6">
-                        <span className="text-xs md:text-sm text-slate-200">{order.product_name || "منتج عام"}</span>
-                        {order.size && (
-                          <span className="text-[10px] md:text-sm bg-slate-800 text-white border border-fuchsia-700 rounded-md px-1.5 md:px-2 py-0.5 mr-1.5 md:mr-2 font-mono">
-                            {order.size}
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Quantity */}
-                      <td className="py-3 px-3 md:py-5 md:px-6 text-center font-mono font-bold text-orange-400 text-xs md:text-sm">
-                        {order.quantity || 1}
-                      </td>
-
-                      {/* Cash value */}
-                      <td className="py-3 px-3 md:py-5 md:px-6 font-mono font-bold text-xs md:text-sm">
-                        {totalOrderPrice > 0 ? (
-                          <span className="text-emerald-400 whitespace-nowrap">
-                            {totalOrderPrice.toLocaleString()} <span className="text-[9px] md:text-xs font-normal text-slate-500">DA</span>
-                          </span>
-                        ) : (
-                          <span className="text-slate-500 text-[10px] md:text-xs">0 DA</span>
-                        )}
-                      </td>
-
-                      {/* Source badge marker */}
-                      <td className="py-3 px-3 md:py-5 md:px-6">
-                        <span className="text-[10px] md:text-xs font-medium bg-slate-800 border border-fuchsia-700 px-2 md:px-3 py-1 md:py-1.5 rounded-full text-white">
-                          {order.source || "غير معروف"}
-                        </span>
-                      </td>
-
-                      {/* Live status management status buttons / select dropdown */}
-                      <td className="py-3 px-3 md:py-5 md:px-6 text-center">
-                        <div className="flex items-center justify-center gap-1.5 md:gap-2">
-                          <select
-                            value={order.status || 'pending'}
-                            onChange={(e) => handleUpdateStatus(order.id, e.target.value, order)}
-                            className={`text-[10px] md:text-xs font-bold px-2 md:px-3 py-1.5 md:py-2 rounded-full border focus:outline-none cursor-pointer min-w-[85px] md:min-w-[110px] ${order.status === 'delivered'
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                              : order.status === 'shipped'
-                                ? 'bg-sky-500/10 text-sky-400 border-sky-500/20'
-                                : order.status === 'cancelled'
-                                  ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                                  : 'bg-slate-800 text-slate-300 border-slate-700'
-                              }`}
-                          >
-                            <option value="pending">⏳ {t.statusPending}</option>
-                            <option value="shipped">📦 {t.statusShipped}</option>
-                            <option value="delivered">✅ {t.statusDelivered}</option>
-                            <option value="cancelled">❌ {t.statusCancelled}</option>
-                          </select>
-
-                        </div>
-                      </td>
-
-                      {/* Deletion and updates */}
-                      <td className="py-3 px-3 md:py-5 md:px-6 text-center">
-                        <button
-                          onClick={() => handleDeleteOrder(order.id)}
-                          className="p-1.5 md:p-2 hover:bg-red-900/20 hover:text-red-400 text-slate-600 rounded-lg transition-all cursor-pointer"
-                          title="حذف الطلبية"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                        </button>
-                      </td>
-                    </tr>
+                      {tab.label}
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${statusFilter === tab.key ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400'
+                        }`}>{count}</span>
+                    </button>
                   );
                 })}
-              </tbody>
-            </table>
+              </div>
+
+              {/* Table Toolbar */}
+              <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder={t.searchPlaceholder}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-white border border-slate-300 text-xs px-10 py-2.5 rounded-lg w-full focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-right text-slate-700 placeholder-slate-400"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={sourceFilter}
+                    onChange={(e) => setSourceFilter(e.target.value)}
+                    className="bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg focus:outline-none text-slate-600 min-w-[130px]"
+                  >
+                    <option value="all">جميع المنتجات</option>
+                    {uniquePlatformSources.map((source, i) => (
+                      <option key={i} value={source}>{source}</option>
+                    ))}
+                  </select>
+                  <span className="text-[10px] text-slate-400 font-mono hidden sm:inline-block">
+                    {t.showCount.replace("{count}", filteredOrders.length).replace("{total}", orders.length)}
+                  </span>
+                  <button
+                    onClick={() => setIsAddOrderOpen(true)}
+                    className="bg-[#2563EB] hover:bg-blue-700 text-white font-semibold text-xs py-2.5 px-4 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                    id="open-add-order-modal-btn"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>{t.addOrderTitle}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* MAIN DATA GRID TABLE */}
+              <div className="overflow-x-auto">
+                {filteredOrders.length === 0 ? (
+                  <div className="text-center py-16 px-4" id="empty-table-state">
+                    <p className="text-slate-400 text-sm font-semibold mb-2">لا توجد طلبيات مطابقة لمعايير البحث والفرز</p>
+                    <p className="text-slate-600 text-xs">أضف طلبيات جديدة أو اضبط حقول الفلترة بالأعلى.</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-right" id="orders-main-table">
+                    <thead>
+                      <tr className="sticky top-0 bg-slate-50 text-[10px] md:text-xs text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                        <th className="py-4 px-4 font-bold text-right">{t.customer}</th>
+                        <th className="py-4 px-4 font-bold text-right">{t.wilaya}</th>
+                        <th className="py-4 px-4 font-bold text-right">{t.productSize}</th>
+                        <th className="py-4 px-4 font-bold text-center">{t.qty}</th>
+                        <th className="py-4 px-4 font-bold text-right">{t.priceAmount}</th>
+                        <th className="py-4 px-4 font-bold text-right">المصدر</th>
+                        <th className="py-4 px-4 font-bold text-center">{t.status}</th>
+                        <th className="py-4 px-4 font-bold text-center">{t.actions}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-xs md:text-sm divide-y divide-slate-100">
+                      {filteredOrders.map((order, idx) => {
+                        const singlePrice = getSourcePrice(order.source);
+                        const totalOrderPrice = singlePrice * (order.quantity || 1);
+                        return (
+                          <tr
+                            key={order.id || idx}
+                            className="hover:bg-slate-50 transition-colors bg-white"
+                            id={`order-row-${order.id}`}
+                          >
+                            {/* Customer Details */}
+                            <td className="py-4 px-4">
+                              <div className="font-bold text-[#0F172A] text-xs md:text-sm whitespace-nowrap">{order.name}</div>
+                              <div className="text-[10px] md:text-xs text-slate-500 font-mono mt-0.5 whitespace-nowrap">{order.phone}</div>
+                            </td>
+
+                            {/* City/Wilaya */}
+                            <td className="py-4 px-4 text-slate-700 font-medium text-xs md:text-sm">
+                              {order.city || "غير محدد"}
+                            </td>
+
+                            {/* Product & Size */}
+                            <td className="py-4 px-4">
+                              <span className="text-xs md:text-sm text-slate-700">{order.product_name || "منتج عام"}</span>
+                              {order.size && (
+                                <span className="text-[10px] md:text-xs bg-slate-100 text-slate-700 border border-slate-200 rounded px-1.5 py-0.5 mr-1.5 font-mono">
+                                  {order.size}
+                                </span>
+                              )}
+                            </td>
+
+                            {/* Quantity */}
+                            <td className="py-4 px-4 text-center font-mono font-bold text-[#0F172A] text-xs md:text-sm">
+                              {order.quantity || 1}
+                            </td>
+
+                            {/* Cash value */}
+                            <td className="py-4 px-4 font-mono font-bold text-xs md:text-sm">
+                              {totalOrderPrice > 0 ? (
+                                <span className="text-[#2563EB] whitespace-nowrap">
+                                  {totalOrderPrice.toLocaleString()} <span className="text-[9px] md:text-xs font-normal text-slate-400">DA</span>
+                                </span>
+                              ) : (
+                                <span className="text-slate-400 text-[10px] md:text-xs">0 DA</span>
+                              )}
+                            </td>
+
+                            {/* Source badge marker */}
+                            <td className="py-4 px-4">
+                              <span className="text-[10px] md:text-xs font-medium bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full text-blue-600">
+                                {order.source || "غير معروف"}
+                              </span>
+                            </td>
+
+                            {/* Live status management status buttons / select dropdown */}
+                            <td className="py-4 px-4 text-center">
+                              <div className="flex items-center justify-center gap-1.5">
+                                <select
+                                  value={order.status || 'pending'}
+                                  onChange={(e) => handleUpdateStatus(order.id, e.target.value, order)}
+                                  className={`text-[10px] md:text-xs font-bold px-2.5 py-1.5 rounded-full border focus:outline-none cursor-pointer min-w-[85px] md:min-w-[110px] ${order.status === 'delivered'
+                                      ? 'bg-green-50 text-green-600 border-green-200'
+                                      : order.status === 'shipped'
+                                        ? 'bg-purple-50 text-purple-600 border-purple-200'
+                                        : order.status === 'cancelled'
+                                          ? 'bg-red-50 text-red-600 border-red-200'
+                                          : order.status === 'confirmed'
+                                            ? 'bg-blue-50 text-blue-600 border-blue-200'
+                                            : 'bg-amber-50 text-amber-600 border-amber-200'
+                                    }`}
+                                >
+                                  <option value="pending">⏳ {t.statusPending}</option>
+                                  <option value="shipped">📦 {t.statusShipped}</option>
+                                  <option value="delivered">✅ {t.statusDelivered}</option>
+                                  <option value="cancelled">❌ {t.statusCancelled}</option>
+                                </select>
+                              </div>
+                            </td>
+
+                            {/* Deletion and updates */}
+                            <td className="py-4 px-4 text-center">
+                              <button
+                                onClick={() => handleDeleteOrder(order.id)}
+                                className="p-1.5 hover:bg-red-50 hover:text-red-600 text-slate-400 rounded-lg transition-all cursor-pointer"
+                                title="حذف الطلبية"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="block md:hidden">
+            {/* Mobile header with Add Order Button */}
+            <div className="flex items-center justify-between mb-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+              <h2 className="text-sm font-bold text-[#0F172A]">إدارة الطلبات</h2>
+              <button
+                onClick={() => setIsAddOrderOpen(true)}
+                className="bg-[#2563EB] hover:bg-blue-700 text-white font-semibold text-xs py-2.5 px-3.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{t.addOrderTitle}</span>
+              </button>
+            </div>
+            <OrderCards
+              orders={orders}
+              prices={prices}
+              onStatusUpdate={handleUpdateStatus}
+              onDelete={handleDeleteOrder}
+              updatingId={updatingId}
+            />
+          </div>
+
+          {/* MODAL 1: ADD NEW ORDER */}
+          {isAddOrderOpen && (
+            <div
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+              id="add-order-modal-backdrop"
+            >
+              <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-xl p-6 sm:p-8 relative shadow-xl">
+                <button
+                  onClick={() => setIsAddOrderOpen(false)}
+                  className="absolute top-4 left-4 p-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                <h3 className="text-lg font-bold text-[#0F172A] mb-2 flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5 text-[#2563EB]" />
+                  <span>{t.addOrderTitle}</span>
+                </h3>
+                <p className="text-xs text-slate-500 mb-6">سجل تفاصيل الطلبية الجديدة التي استلمتها مباشرة وسيتم حساب الإحصائيات فوراً.</p>
+
+                <form onSubmit={handleAddOrderSubmit} className="space-y-4" id="add-order-modal-form">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">{t.customerNameLabel} *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="مثال: أحمد بوعلام"
+                        value={newOrder.name}
+                        onChange={(e) => setNewOrder({ ...newOrder, name: e.target.value })}
+                        className="w-full bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg text-[#0F172A] focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">{t.phoneLabel} *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="0554 12 34 56"
+                        value={newOrder.phone}
+                        onChange={(e) => setNewOrder({ ...newOrder, phone: e.target.value })}
+                        className="w-full bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg text-[#0F172A] focus:outline-none focus:border-blue-500 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">{t.wilayaLabel} *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="الجزائر، وهران، سطيف..."
+                        value={newOrder.city}
+                        onChange={(e) => setNewOrder({ ...newOrder, city: e.target.value })}
+                        className="w-full bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg text-[#0F172A] focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">{t.sizeLabel}</label>
+                      <input
+                        type="text"
+                        placeholder="42 / XL / Standard"
+                        value={newOrder.size}
+                        onChange={(e) => setNewOrder({ ...newOrder, size: e.target.value })}
+                        className="w-full bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg text-[#0F172A] focus:outline-none focus:border-blue-500 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">{t.qty} *</label>
+                      <input
+                        type="number"
+                        min="1"
+                        required
+                        value={newOrder.quantity}
+                        onChange={(e) => setNewOrder({ ...newOrder, quantity: parseInt(e.target.value) || 1 })}
+                        className="w-full bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg text-[#0F172A] focus:outline-none focus:border-blue-500 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">{t.productNameLabel} *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="مثال: حذاء رياضي كلاسيكي"
+                        value={newOrder.product_name}
+                        onChange={(e) => setNewOrder({ ...newOrder, product_name: e.target.value })}
+                        className="w-full bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg text-[#0F172A] focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">{t.sourceLabel} *</label>
+                      <select
+                        value={newOrder.source}
+                        onChange={(e) => setNewOrder({ ...newOrder, source: e.target.value })}
+                        className="w-full bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg text-[#0F172A] focus:outline-none focus:border-blue-500"
+                      >
+                        {availableProducts.map((prod, i) => (
+                          <option key={i} value={prod}>{prod}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddOrderOpen(false)}
+                      className="px-4 py-2 text-xs bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 rounded-lg border border-slate-300 transition-colors"
+                    >
+                      {t.cancel}
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 text-xs bg-[#2563EB] hover:bg-blue-700 text-white font-bold rounded-lg transition-all shadow-sm cursor-pointer"
+                      id="submit-new-order-btn"
+                    >
+                      {t.addOrderBtn}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL 2: UPDATE CLIENT ACCOUNT PASSWORD */}
+          {isPasswordModalOpen && (
+            <div
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+              id="password-modal-backdrop"
+            >
+              <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-sm p-6 sm:p-8 relative shadow-xl">
+                <button
+                  onClick={() => setIsPasswordModalOpen(false)}
+                  className="absolute top-4 left-4 p-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200 text-slate-400 hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                <h3 className="text-lg font-bold text-[#0F172A] mb-2 flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-amber-500" />
+                  <span>{t.changePassword}</span>
+                </h3>
+                <p className="text-xs text-slate-500 mb-6">حدث كلمة مرور حسابك للوصول الآمن مرة أخرى للوحة تحكم COD الخاصة بك.</p>
+
+                {pwdError && (
+                  <div className="mb-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-[11px] text-right">
+                    {pwdError}
+                  </div>
+                )}
+
+                <form onSubmit={handleChangePasswordSubmit} className="space-y-4" id="password-modal-form">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">{t.currentPassword}</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="كلمة المرور الحالية"
+                      value={pwdCurrent}
+                      onChange={(e) => setPwdCurrent(e.target.value)}
+                      className="w-full bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg text-[#0F172A] focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">{t.passwordPlaceholder}</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="كلمة المرور الجديدة"
+                      value={pwdNew}
+                      onChange={(e) => setPwdNew(e.target.value)}
+                      className="w-full bg-white border border-slate-300 text-xs px-3 py-2.5 rounded-lg text-[#0F172A] focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsPasswordModalOpen(false)}
+                      className="px-4 py-2 text-xs bg-white hover:bg-slate-50 text-slate-500 hover:text-white rounded-lg border border-slate-300 transition-colors"
+                    >
+                      {t.cancel}
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 text-xs bg-[#2563EB] hover:bg-blue-750 text-white font-bold rounded-lg transition-all shadow-sm cursor-pointer"
+                      id="submit-password-change-btn"
+                    >
+                      {t.save}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* FLOATING ACTION TOAST POPUP NOTIFICATION SCREEN */}
+          {toast && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast(null)}
+            />
           )}
         </div>
       </div>
-
-      {/* MODAL 1: ADD NEW ORDER */}
-      {isAddOrderOpen && (
-        <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in"
-          id="add-order-modal-backdrop"
-        >
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-xl p-6 sm:p-8 relative shadow-2xl">
-            <button
-              onClick={() => setIsAddOrderOpen(false)}
-              className="absolute top-4 left-4 p-1.5 bg-slate-950 hover:bg-slate-800 rounded-xl transition-colors border border-slate-800 text-slate-400 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-indigo-400" />
-              <span>{t.addOrderTitle}</span>
-            </h3>
-            <p className="text-xs text-slate-400 mb-6">سجل تفاصيل الطلبية الجديدة التي استلمتها مباشرة وسيتم حساب الإحصائيات فوراً.</p>
-
-            <form onSubmit={handleAddOrderSubmit} className="space-y-4" id="add-order-modal-form">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.customerNameLabel} *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="مثال: أحمد بوعلام"
-                    value={newOrder.name}
-                    onChange={(e) => setNewOrder({ ...newOrder, name: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.phoneLabel} *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="0554 12 34 56"
-                    value={newOrder.phone}
-                    onChange={(e) => setNewOrder({ ...newOrder, phone: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.wilayaLabel} *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="الجزائر، وهران، سطيف..."
-                    value={newOrder.city}
-                    onChange={(e) => setNewOrder({ ...newOrder, city: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.sizeLabel}</label>
-                  <input
-                    type="text"
-                    placeholder="42 / XL / Standard"
-                    value={newOrder.size}
-                    onChange={(e) => setNewOrder({ ...newOrder, size: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.qty} *</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={newOrder.quantity}
-                    onChange={(e) => setNewOrder({ ...newOrder, quantity: parseInt(e.target.value) || 1 })}
-                    className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.productNameLabel} *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="مثال: حذاء رياضي كلاسيكي"
-                    value={newOrder.product_name}
-                    onChange={(e) => setNewOrder({ ...newOrder, product_name: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.sourceLabel} *</label>
-                  <select
-                    value={newOrder.source}
-                    onChange={(e) => setNewOrder({ ...newOrder, source: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500"
-                  >
-                    {availableProducts.map((prod, i) => (
-                      <option key={i} value={prod}>{prod}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-800/60 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsAddOrderOpen(false)}
-                  className="px-4 py-2 text-xs bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl border border-slate-800 transition-colors"
-                >
-                  {t.cancel}
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-md cursor-pointer"
-                  id="submit-new-order-btn"
-                >
-                  {t.addOrderBtn}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 2: UPDATE CLIENT ACCOUNT PASSWORD */}
-      {isPasswordModalOpen && (
-        <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in"
-          id="password-modal-backdrop"
-        >
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 sm:p-8 relative shadow-2xl">
-            <button
-              onClick={() => setIsPasswordModalOpen(false)}
-              className="absolute top-4 left-4 p-1.5 bg-slate-950 hover:bg-slate-800 rounded-xl transition-colors border border-slate-800 text-slate-400 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-              <Lock className="w-4 h-4 text-amber-500" />
-              <span>{t.changePassword}</span>
-            </h3>
-            <p className="text-xs text-slate-400 mb-6">حدث كلمة مرور حسابك للوصول الآمن مرة أخرى للوحة تحكم COD الخاصة بك.</p>
-
-            {pwdError && (
-              <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-[11px] text-right">
-                {pwdError}
-              </div>
-            )}
-
-            <form onSubmit={handleChangePasswordSubmit} className="space-y-4" id="password-modal-form">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.currentPassword}</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="كلمة المرور الحالية"
-                  value={pwdCurrent}
-                  onChange={(e) => setPwdCurrent(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-amber-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">{t.passwordPlaceholder}</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="كلمة المرور الجديدة"
-                  value={pwdNew}
-                  onChange={(e) => setPwdNew(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-xs px-3 py-2.5 rounded-xl text-slate-100 focus:outline-none focus:border-amber-500"
-                />
-              </div>
-
-              <div className="pt-4 border-t border-slate-800/60 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsPasswordModalOpen(false)}
-                  className="px-4 py-2 text-xs bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl border border-slate-800 transition-colors"
-                >
-                  {t.cancel}
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-xs bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition-all shadow-md cursor-pointer"
-                  id="submit-password-change-btn"
-                >
-                  {t.save}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* FLOATING ACTION TOAST POPUP NOTIFICATION SCREEN */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
   );
 }

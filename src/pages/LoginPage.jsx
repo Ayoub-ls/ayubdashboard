@@ -82,24 +82,20 @@ export default function LoginPage() {
 
   return (
     <div 
-      className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 selection:bg-indigo-500/30 selection:text-indigo-200"
+      className="min-h-screen bg-[#F8F9FC] flex items-center justify-center p-4"
       dir="rtl"
       id="login-page-container"
     >
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden backdrop-blur-sm">
-        {/* Decorative ambient gradient */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
         {/* Logo/Icon Header */}
         <div className="flex flex-col items-center mb-8" id="login-header">
-          <div className="bg-indigo-600/10 text-indigo-400 p-4 rounded-2xl border border-indigo-500/20 mb-3 sm:mb-4 shadow-sm animate-pulse">
+          <div className="bg-blue-50 text-blue-600 p-4 rounded-2xl border border-blue-100 mb-4">
             <Settings className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-[#0F172A] flex items-center gap-2">
             🛠️ لوحة التحكم <span className="text-slate-400 font-normal text-sm">المشتركة</span>
           </h1>
-          <p className="text-xs text-slate-400 mt-2 text-center">
+          <p className="text-xs text-slate-500 mt-2 text-center">
             {mode === 'client' ? 'تسجيل دخول لوحة تحكم العملاء المخصصة للـ COD' : 'تسجيل دخول المشرف العام والتحكم بالنظام'}
           </p>
         </div>
@@ -107,7 +103,7 @@ export default function LoginPage() {
         {/* Error Alert Bar */}
         {error && (
           <div 
-            className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-2xl text-xs flex items-center gap-2 animate-shake"
+            className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-xs flex items-center gap-2"
             id="login-error-alert"
           >
             <AlertTriangle className="w-4 h-4 shrink-0" />
@@ -119,9 +115,9 @@ export default function LoginPage() {
         {mode === 'client' ? (
           <form onSubmit={handleClientLogin} className="space-y-5" id="client-login-form">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-2">اسم العميل</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-2">اسم العميل</label>
               <div className="relative">
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
                   <User className="h-4 w-4" />
                 </div>
                 <input
@@ -130,15 +126,15 @@ export default function LoginPage() {
                   placeholder="مثال: amourshop"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  className="w-full bg-slate-950/70 border border-slate-800 text-sm pr-10 pl-4 py-3 rounded-2xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
+                  className="w-full bg-white border border-slate-300 text-sm pr-10 pl-4 py-3 rounded-xl text-[#0F172A] placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-medium"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-2">كلمة المرور</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-2">كلمة المرور</label>
               <div className="relative">
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
                   <Lock className="h-4 w-4" />
                 </div>
                 <input
@@ -147,7 +143,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-950/70 border border-slate-800 text-sm pr-10 pl-4 py-3 rounded-2xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
+                  className="w-full bg-white border border-slate-300 text-sm pr-10 pl-4 py-3 rounded-xl text-[#0F172A] placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-medium"
                 />
               </div>
             </div>
@@ -155,12 +151,12 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800/60 disabled:text-indigo-300 text-white font-medium text-sm py-3 px-4 rounded-2xl transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full mt-2 bg-[#2563EB] hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold text-sm py-3 px-4 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-2"
               id="client-login-submit"
             >
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>جاري التحقق...</span>
                 </>
               ) : (
@@ -172,12 +168,12 @@ export default function LoginPage() {
           /* MODE B: SUPER ADMIN */
           <form onSubmit={handleSuperLogin} className="space-y-5" id="super-login-form">
             <div>
-              <label className="block text-xs font-medium text-amber-400 mb-2 flex items-center gap-1">
+              <label className="block text-xs font-semibold text-amber-600 mb-2 flex items-center gap-1">
                 <KeyRound className="w-3.5 h-3.5" />
                 كلمة مرور المشرف العام
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
                   <Lock className="h-4 w-4" />
                 </div>
                 <input
@@ -187,7 +183,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={superPassword}
                   onChange={(e) => setSuperPassword(e.target.value)}
-                  className="w-full bg-slate-950/70 border border-slate-850 text-sm pr-10 pl-4 py-3 rounded-2xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium"
+                  className="w-full bg-white border border-slate-300 text-sm pr-10 pl-4 py-3 rounded-xl text-[#0F172A] placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium"
                 />
               </div>
             </div>
@@ -195,7 +191,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 text-white font-medium text-sm py-3 px-4 rounded-2xl transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full mt-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-semibold text-sm py-3 px-4 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-2"
               id="super-login-submit"
             >
               <span>دخول بصلاحيات كاملة 👑</span>
@@ -204,11 +200,11 @@ export default function LoginPage() {
         )}
 
         {/* Toggle Mode Footer */}
-        <div className="mt-8 pt-6 border-t border-slate-800 flex justify-center text-xs" id="login-footer-actions">
+        <div className="mt-8 pt-6 border-t border-slate-100 flex justify-center text-xs" id="login-footer-actions">
           {mode === 'client' ? (
             <button
               onClick={() => toggleMode('super')}
-              className="text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1.5 focus:outline-none py-1 px-3 bg-slate-850 hover:bg-slate-800 rounded-xl border border-slate-800/80"
+              className="text-slate-500 hover:text-amber-600 transition-colors flex items-center gap-1.5 focus:outline-none py-1.5 px-4 bg-slate-50 hover:bg-amber-50 rounded-xl border border-slate-200 hover:border-amber-200"
               id="toggle-to-super"
             >
               <span>دخول كمشرف العام 👑</span>
@@ -216,7 +212,7 @@ export default function LoginPage() {
           ) : (
             <button
               onClick={() => toggleMode('client')}
-              className="text-slate-400 hover:text-indigo-400 transition-colors flex items-center gap-1.5 focus:outline-none py-1 px-3 bg-slate-850 hover:bg-slate-800 rounded-xl border border-slate-800/80"
+              className="text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-1.5 focus:outline-none py-1.5 px-4 bg-slate-50 hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-200"
               id="toggle-to-client"
             >
               <ArrowLeftRight className="w-3.5 h-3.5" />
