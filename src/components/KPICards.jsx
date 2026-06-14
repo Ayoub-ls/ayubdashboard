@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, ShoppingBasket, ShoppingBag, Truck } from 'lucide-react';
+import { DollarSign, ShoppingBasket, ShoppingBag, Truck, Percent } from 'lucide-react';
 
 export default function KPICards({ orders = [], prices = [] }) {
   // Helper to get price for a specific source
@@ -31,15 +31,32 @@ export default function KPICards({ orders = [], prices = [] }) {
 
   // 5. Delivery rate: delivered / totalOrders * 100
   const deliveredOrders = orders.filter((o) => o.status === 'delivered').length;
-  const deliveryRate = totalOrders > 0 ? (deliveredOrders / totalOrders) * 105 : 0; 
-  // Wait, let's look at the instruction: deliveryRate = delivered / total * 100
-  // Let's use the literal mathematical calculation: (delivered / total) * 100, capped at 100.
   const literalDeliveryRate = totalOrders > 0 
     ? Math.min(Math.round((deliveredOrders / totalOrders) * 100), 100) 
     : 0;
 
+  // 6. Delivery rate per source
+  const sourceStats = {};
+  orders.forEach((o) => {
+    const source = o.source ? o.source.trim() : 'غير محدد';
+    if (!sourceStats[source]) {
+      sourceStats[source] = { total: 0, delivered: 0 };
+    }
+    sourceStats[source].total += 1;
+    if (o.status === 'delivered') {
+      sourceStats[source].delivered += 1;
+    }
+  });
+
+  const deliveryRatePerSource = Object.entries(sourceStats)
+    .map(([source, stats]) => {
+      const rate = stats.total > 0 ? Math.min(Math.round((stats.delivered / stats.total) * 100), 100) : 0;
+      return { source, rate, total: stats.total };
+    })
+    .sort((a, b) => b.rate - a.rate);
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="kpi-cards-grid" dir="rtl">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6" id="kpi-cards-grid" dir="rtl">
       {/* 1. إجمالي المبيعات (Revenue) */}
       <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all">
         <div className="flex items-center justify-between mb-4">
@@ -110,6 +127,41 @@ export default function KPICards({ orders = [], prices = [] }) {
               className="bg-[#2563EB] h-full transition-all duration-500 rounded-full" 
               style={{ width: `${Math.min(literalDeliveryRate, 100)}%` }} 
             />
+          </div>
+        </div>
+      </div>
+
+      {/* 5. معدل التسليم حسب المصدر (Delivery Rate per Source) */}
+      <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all col-span-2 lg:col-span-1 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">التسليم حسب المصدر</p>
+            <div className="text-indigo-600 bg-indigo-50 p-2 rounded-lg">
+              <Percent className="w-4 h-4" />
+            </div>
+          </div>
+          
+          <div className="space-y-2.5">
+            {deliveryRatePerSource.length === 0 ? (
+              <p className="text-slate-400 text-xs py-2 text-center">لا توجد بيانات متاحة</p>
+            ) : (
+              deliveryRatePerSource.slice(0, 3).map((item, idx) => (
+                <div key={idx} className="space-y-1">
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span className="text-slate-600 truncate max-w-[85px] font-medium">{item.source}</span>
+                    <span className="font-mono text-indigo-600 font-bold">
+                      {item.rate}% <span className="text-[9px] text-slate-400 font-normal">({item.total} ط)</span>
+                    </span>
+                  </div>
+                  <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-indigo-500 h-full rounded-full transition-all duration-500" 
+                      style={{ width: `${item.rate}%` }} 
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

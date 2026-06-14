@@ -53,9 +53,12 @@ const TRANSLATIONS = {
     deleteOrderConfirm: "هل أنت متأكد من حذف هذه الطلبية نهائياً؟",
     statusAll: "جميع الحالات",
     statusPending: "في الانتظار",
+    statusConfirmed: "مؤكد",
+    statusCalled: "اتصل",
     statusShipped: "تم الشحن",
     statusDelivered: "تم التسليم",
     statusCancelled: "ملغي",
+    statusReturned: "مسترجع",
     showCount: "عرض {count} من أصل {total}"
   },
   en: {
@@ -82,9 +85,12 @@ const TRANSLATIONS = {
     deleteOrderConfirm: "Are you sure you want to delete this order permanently?",
     statusAll: "All Statuses",
     statusPending: "Pending",
+    statusConfirmed: "Confirmed",
+    statusCalled: "Called",
     statusShipped: "Shipped",
     statusDelivered: "Delivered",
     statusCancelled: "Cancelled",
+    statusReturned: "Returned",
     showCount: "Showing {count} of {total}"
   },
   fr: {
@@ -111,9 +117,12 @@ const TRANSLATIONS = {
     deleteOrderConfirm: "Êtes-vous sûr de vouloir supprimer définitivement cette commande ?",
     statusAll: "Tous les statuts",
     statusPending: "En attente",
+    statusConfirmed: "Confirmé",
+    statusCalled: "Appelé",
     statusShipped: "Expédié",
     statusDelivered: "Livré",
     statusCancelled: "Annulé",
+    statusReturned: "Retourné",
     showCount: "Affichage de {count} sur {total}"
   }
 };
@@ -543,9 +552,12 @@ export default function SuperAdminPanel() {
               >
                 <option value="all">🔍 {t.statusAll}</option>
                 <option value="pending">⏳ {t.statusPending}</option>
+                <option value="confirmed">🔵 {t.statusConfirmed}</option>
+                <option value="called">📞 {t.statusCalled}</option>
                 <option value="shipped">📦 {t.statusShipped}</option>
                 <option value="delivered">✅ {t.statusDelivered}</option>
                 <option value="cancelled">❌ {t.statusCancelled}</option>
+                <option value="returned">🔄 {t.statusReturned}</option>
               </select>
             </div>
           </div>
@@ -618,13 +630,22 @@ export default function SuperAdminPanel() {
                               ? 'bg-purple-50 text-purple-600 border-purple-200'
                               : order.status === 'cancelled'
                               ? 'bg-red-50 text-red-600 border-red-200'
+                              : order.status === 'confirmed'
+                              ? 'bg-blue-50 text-blue-600 border-blue-200'
+                              : order.status === 'called'
+                              ? 'bg-cyan-50 text-cyan-600 border-cyan-200'
+                              : order.status === 'returned'
+                              ? 'bg-orange-50 text-orange-600 border-orange-200'
                               : 'bg-amber-50 text-amber-600 border-amber-200'
                           }`}>
                             {order.status === 'delivered' && "✓ "}
                             {order.status === 'pending' ? t.statusPending : 
+                             order.status === 'confirmed' ? t.statusConfirmed : 
+                             order.status === 'called' ? t.statusCalled : 
                              order.status === 'shipped' ? t.statusShipped : 
                              order.status === 'delivered' ? t.statusDelivered : 
-                             order.status === 'cancelled' ? t.statusCancelled : order.status}
+                             order.status === 'cancelled' ? t.statusCancelled : 
+                             order.status === 'returned' ? t.statusReturned : order.status}
                           </span>
                         </td>
                       </tr>

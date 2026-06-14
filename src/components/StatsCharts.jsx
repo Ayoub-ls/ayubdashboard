@@ -49,8 +49,31 @@ export default function StatsCharts({ orders = [], prices = [] }) {
 
   const maxSourceRevenue = sortedSources.length > 0 ? sortedSources[0].revenue : 1;
 
+  // ==========================================
+  // CHART 3: Delivered orders Revenue per source
+  // ==========================================
+  const deliveredSourceRevenues = {};
+  const deliveredOrders = orders.filter((o) => o.status === 'delivered');
+
+  deliveredOrders.forEach((o) => {
+    const source = o.source ? o.source.trim() : 'غير محدد';
+    const price = getPrice(source, prices);
+    const qty = o.quantity || 1;
+    const rev = qty * price;
+    deliveredSourceRevenues[source] = (deliveredSourceRevenues[source] || 0) + rev;
+  });
+
+  const sortedDeliveredSources = Object.entries(deliveredSourceRevenues)
+    .map(([name, revenue]) => {
+      const pricePerUnit = getPrice(name, prices);
+      return { name, revenue, pricePerUnit };
+    })
+    .sort((a, b) => b.revenue - a.revenue);
+
+  const maxDeliveredSourceRevenue = sortedDeliveredSources.length > 0 ? sortedDeliveredSources[0].revenue : 1;
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6" id="stats-charts-container" dir="rtl">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6" id="stats-charts-container" dir="rtl">
       {/* CHART 1: Top 5 Wilayas */}
       <div className="bg-white border border-slate-100 rounded-xl shadow-sm p-6">
         <h3 className="text-sm font-semibold text-slate-700 mb-6">
@@ -106,6 +129,39 @@ export default function StatsCharts({ orders = [], prices = [] }) {
                   <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-blue-400 rounded-full transition-all duration-500"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* CHART 3: Delivered orders Revenue per source */}
+      <div className="bg-white border border-slate-100 rounded-xl shadow-sm p-6 flex flex-col">
+        <h3 className="text-sm font-semibold text-slate-700 mb-6">
+          إيرادات الطلبات المسلمة حسب المصدر
+        </h3>
+
+        {sortedDeliveredSources.length === 0 ? (
+          <p className="text-slate-400 text-xs text-center py-10 my-auto">لا توجد مبيعات مستلمة حالياً</p>
+        ) : (
+          <div className="flex-1 flex flex-col justify-center space-y-3.5">
+            {sortedDeliveredSources.map((item, idx) => {
+              const percentage = Math.max((item.revenue / maxDeliveredSourceRevenue) * 100, 3);
+              return (
+                <div key={idx} className="space-y-1.5" id={`delivered-source-bar-${idx}`}>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-700 font-medium">{item.name}</span>
+                    <span className="font-mono text-emerald-600 font-bold text-[11px]">
+                      {item.revenue.toLocaleString()} DA
+                    </span>
+                  </div>
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-emerald-400 rounded-full transition-all duration-500"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>

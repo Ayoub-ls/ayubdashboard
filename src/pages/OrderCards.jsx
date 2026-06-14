@@ -6,9 +6,11 @@ import {
 const STATUS = {
   pending:   { label: "في الانتظار", bg: "bg-amber-50",  text: "text-amber-600",  dot: "bg-amber-400"  },
   confirmed: { label: "مؤكد",        bg: "bg-blue-50",   text: "text-blue-600",   dot: "bg-blue-400"   },
+  called:    { label: "اتصل",        bg: "bg-cyan-50",   text: "text-cyan-600",   dot: "bg-cyan-400"   },
   shipped:   { label: "تم الشحن",    bg: "bg-purple-50", text: "text-purple-600", dot: "bg-purple-400" },
   delivered: { label: "تم التسليم",  bg: "bg-green-50",  text: "text-green-600",  dot: "bg-green-400"  },
   cancelled: { label: "ملغي",        bg: "bg-red-50",    text: "text-red-600",    dot: "bg-red-400"    },
+  returned:  { label: "مسترجع",      bg: "bg-orange-50", text: "text-orange-600", dot: "bg-orange-400" },
 };
 
 const getPrice = (source, prices) => {
@@ -69,9 +71,11 @@ export default function OrderCards({
             <option value="all">كل الحالات</option>
             <option value="pending">في الانتظار</option>
             <option value="confirmed">مؤكد</option>
+            <option value="called">اتصل</option>
             <option value="shipped">تم الشحن</option>
             <option value="delivered">تم التسليم</option>
             <option value="cancelled">ملغي</option>
+            <option value="returned">مسترجع</option>
           </select>
 
           <select
@@ -166,11 +170,13 @@ export default function OrderCards({
                     disabled={updatingId === order.id}
                     className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm font-bold text-slate-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 appearance-none disabled:opacity-50 cursor-pointer text-right"
                   >
-                    <option value="pending">🟡 في الانتظار</option>
+                    <option value="pending">⏳ في الانتظار</option>
                     <option value="confirmed">🔵 مؤكد</option>
+                    <option value="called">📞 اتصل</option>
                     <option value="shipped">🟣 تم الشحن</option>
                     <option value="delivered">🟢 تم التسليم 🔥</option>
                     <option value="cancelled">🔴 ملغي</option>
+                    <option value="returned">🔄 مسترجع</option>
                   </select>
 
                   <button

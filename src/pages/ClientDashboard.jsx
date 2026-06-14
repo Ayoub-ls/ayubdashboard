@@ -41,9 +41,12 @@ const TRANSLATIONS = {
     searchPlaceholder: "بحث عن زبون بالاسم أو الهاتف...",
     statusAll: "كل الحالات",
     statusPending: "في الانتظار",
+    statusConfirmed: "مؤكد",
+    statusCalled: "اتصل",
     statusShipped: "تم الشحن",
     statusDelivered: "تم التسليم",
     statusCancelled: "ملغي",
+    statusReturned: "مسترجع",
     showCount: "عرض {count} من أصل {total} طلب",
     customer: "الزبون",
     wilaya: "الولاية / المدينة",
@@ -80,9 +83,12 @@ const TRANSLATIONS = {
     searchPlaceholder: "Search customer by name or phone...",
     statusAll: "All Statuses",
     statusPending: "Pending",
+    statusConfirmed: "Confirmed",
+    statusCalled: "Called",
     statusShipped: "Shipped",
     statusDelivered: "Delivered",
     statusCancelled: "Cancelled",
+    statusReturned: "Returned",
     showCount: "Showing {count} of {total} orders",
     customer: "Customer",
     wilaya: "City / Wilaya",
@@ -119,9 +125,12 @@ const TRANSLATIONS = {
     searchPlaceholder: "Rechercher client par nom ou téléphone...",
     statusAll: "Tous les statuts",
     statusPending: "En attente",
+    statusConfirmed: "Confirmé",
+    statusCalled: "Appelé",
     statusShipped: "Expédié",
     statusDelivered: "Livré",
     statusCancelled: "Annulé",
+    statusReturned: "Retourné",
     showCount: "Affichage de {count} sur {total} commandes",
     customer: "Client",
     wilaya: "Ville / Wilaya",
@@ -354,9 +363,12 @@ export default function ClientDashboard() {
   const getArabicStatus = (status) => {
     switch (status) {
       case 'pending': return 'في الانتظار';
+      case 'confirmed': return 'مؤكد';
+      case 'called': return 'اتصل';
       case 'shipped': return 'تم الشحن';
       case 'delivered': return 'تم التسليم';
       case 'cancelled': return 'ملغي';
+      case 'returned': return 'مسترجع';
       default: return status;
     }
   };
@@ -522,7 +534,10 @@ export default function ClientDashboard() {
                   { key: 'all', label: isRtl ? 'كل الطلبات' : 'All' },
                   { key: 'confirmed', label: isRtl ? 'مؤكد' : 'Confirmed' },
                   { key: 'pending', label: isRtl ? 'في الانتظار' : 'Pending' },
+                  { key: 'called', label: isRtl ? 'اتصل' : 'Called' },
                   { key: 'cancelled', label: isRtl ? 'ملغي' : 'Cancelled' },
+                  { key: 'returned', label: isRtl ? 'مسترجع' : 'Returned' },
+                  { key: 'shipped', label: isRtl ? 'تم الشحن' : 'Shipped' },
                   { key: 'delivered', label: isRtl ? 'تم التسليم' : 'Delivered' },
                 ].map(tab => {
                   const count = tab.key === 'all' ? orders.length : orders.filter(o => o.status === tab.key).length;
@@ -531,8 +546,8 @@ export default function ClientDashboard() {
                       key={tab.key}
                       onClick={() => setStatusFilter(tab.key)}
                       className={`flex items-center gap-1.5 px-4 py-3.5 text-xs font-medium whitespace-nowrap border-b-2 transition-all ${statusFilter === tab.key
-                          ? 'border-[#2563EB] text-[#2563EB]'
-                          : 'border-transparent text-slate-500 hover:text-slate-700'
+                        ? 'border-[#2563EB] text-[#2563EB]'
+                        : 'border-transparent text-slate-500 hover:text-slate-700'
                         }`}
                     >
                       {tab.label}
@@ -661,7 +676,8 @@ export default function ClientDashboard() {
                                 <select
                                   value={order.status || 'pending'}
                                   onChange={(e) => handleUpdateStatus(order.id, e.target.value, order)}
-                                  className={`text-[10px] md:text-xs font-bold px-2.5 py-1.5 rounded-full border focus:outline-none cursor-pointer min-w-[85px] md:min-w-[110px] ${order.status === 'delivered'
+                                  className={`text-[10px] md:text-xs font-bold px-2.5 py-1.5 rounded-full border focus:outline-none cursor-pointer min-w-[85px] md:min-w-[110px] ${
+                                    order.status === 'delivered'
                                       ? 'bg-green-50 text-green-600 border-green-200'
                                       : order.status === 'shipped'
                                         ? 'bg-purple-50 text-purple-600 border-purple-200'
@@ -669,13 +685,20 @@ export default function ClientDashboard() {
                                           ? 'bg-red-50 text-red-600 border-red-200'
                                           : order.status === 'confirmed'
                                             ? 'bg-blue-50 text-blue-600 border-blue-200'
-                                            : 'bg-amber-50 text-amber-600 border-amber-200'
-                                    }`}
+                                            : order.status === 'called'
+                                              ? 'bg-cyan-50 text-cyan-600 border-cyan-200'
+                                              : order.status === 'returned'
+                                                ? 'bg-orange-50 text-orange-600 border-orange-200'
+                                                : 'bg-amber-50 text-amber-600 border-amber-200'
+                                  }`}
                                 >
                                   <option value="pending">⏳ {t.statusPending}</option>
+                                  <option value="confirmed">🔵 {t.statusConfirmed}</option>
+                                  <option value="called">📞 {t.statusCalled}</option>
                                   <option value="shipped">📦 {t.statusShipped}</option>
                                   <option value="delivered">✅ {t.statusDelivered}</option>
                                   <option value="cancelled">❌ {t.statusCancelled}</option>
+                                  <option value="returned">🔄 {t.statusReturned}</option>
                                 </select>
                               </div>
                             </td>
